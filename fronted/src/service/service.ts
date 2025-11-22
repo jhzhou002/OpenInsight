@@ -1,6 +1,5 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 import qs from 'qs';
-import router from '@/router';
 import { message } from 'ant-design-vue';
 
 const env = import.meta.env.DEV;
@@ -13,10 +12,6 @@ const service = axios.create({
 		return status >= 200 && status <= 500;
 	}
 });
-
-const getToken = function (): string {
-	return window.localStorage.getItem('token') || '';
-};
 
 /**
  * @description 处理开发环境打包环境接口url
@@ -46,10 +41,6 @@ service.interceptors.request.use(
 		if (config.headers['content-type'] === defaultContentType) {
 			config.data = qs.stringify(config.data);
 		}
-		// 有token则加token
-		if (getToken()) {
-			config.headers.Authorization = 'Bearer ' + getToken();
-		}
 		return config;
 	},
 	(error: AxiosError) => Promise.reject(error)
@@ -72,7 +63,6 @@ service.interceptors.response.use(
 		}
 
 		if (data.code === 401) {
-			router.replace({ path: '/login' });
 			return Promise.reject(data);
 		}
 

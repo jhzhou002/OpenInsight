@@ -1,12 +1,10 @@
-import loginRouter from './login';
 import HomeRouter from './home';
 
 const routes = [
 	{
 		path: '/',
-		redirect: '/login'
+		redirect: '/home'
 	},
-	...loginRouter,
 	...HomeRouter
 ];
 

@@ -22,11 +22,7 @@ app.use((req, res, next) => {
   next();
 });
 
-// 在路由之前配置解析token中间件
-const { expressjwt } = require("express-jwt");
-const config = require("./config");
-// 路由带/api 不用权限校验
-app.use(expressjwt({ secret: config.jwtSecretKey, algorithms: ["HS256"] }).unless({ path: [/^\/common/] }));
+// 移除了JWT token验证中间件 - 现在允许直接访问
 
 // 路由模块
 const userRouter = require("./router/user");
@@ -36,10 +32,8 @@ app.use("/home", homeRouter);
 
 // 定义错误级别中间件
 app.use((err, req, res, next) => {
-  if (err.name === "UnauthorizedError") {
-    res.status(401);
-    return res.cc("没有权限", 401);
-  }
+  console.error(err);
+  res.cc(err.message || "服务器内部错误", 500);
 });
 
 app.listen(8081, () => {

@@ -158,7 +158,7 @@ export default function (
 					}
 				},
 				{
-					name: 'days(h)',
+					name: 'hours(h)',
 					nameLocation: 'start',
 					min: 0,
 					max: 250,
