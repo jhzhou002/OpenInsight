@@ -23,8 +23,7 @@ const typeArr = [
   "project_attention",
   "developer_activity",
   "openrank",
-  "pr_reviews",
-  "pr_response_time",
+  "prei",
 ];
 exports.getProjectData = (req, res) => {
   let { type, project_id } = req.query;
@@ -100,8 +99,7 @@ exports.getAllData = (req, res) => {
       project_attention: JSON.parse(item.project_attention),
       developer_activity: JSON.parse(item.developer_activity),
       openrank: JSON.parse(item.openrank),
-      pr_reviews: JSON.parse(item.pr_reviews),
-      pr_response_time: JSON.parse(item.pr_response_time),
+      prei: JSON.parse(item.prei),
       openrank_avg: filterNum(item.openrank_avg),
     }));
 
@@ -119,7 +117,7 @@ const calculateAverage = (values) => {
 };
 // 获取初始化数据
 exports.getInitData = (req, res) => {
-  const sql = `select * from github where project_id in (4, 8, 9)`;
+  const sql = `select * from github where project_id in (4, 8, 68)`;
   db.query(sql, (err, results) => {
     if (err) return res.cc(err);
     const dataRes = results.map((item) => ({
@@ -134,8 +132,7 @@ exports.getInitData = (req, res) => {
       project_attention: JSON.parse(item.project_attention),
       developer_activity: JSON.parse(item.developer_activity),
       openrank: JSON.parse(item.openrank),
-      pr_reviews: JSON.parse(item.pr_reviews),
-      pr_response_time: JSON.parse(item.pr_response_time),
+      prei: JSON.parse(item.prei),
       openrank_avg: filterNum(item.openrank_avg),
     }));
 

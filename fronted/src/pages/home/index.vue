@@ -11,8 +11,8 @@
 					<a-col v-bind="leftRightCol" class="chart-content-col">
 						<a-row class="chart-content-left">
 							<a-col class="chart-content-left-item" :span="24">
-								<ModuleItem title="PR处理效率" :loading="initLoading">
-									<div :ref="reviewEfficient.container" class="chart-container" />
+								<ModuleItem title="PREI" :loading="initLoading">
+									<div :ref="preiChart.container" class="chart-container" />
 								</ModuleItem>
 							</a-col>
 							<a-col class="chart-content-left-item" :span="24">
@@ -131,11 +131,11 @@ import { titleList, leftRightCol, centerCol } from './config';
 import { getInit, getOptions } from './service';
 
 const chartModalData = useChartModal();
+const preiChart = useReviewEfficient({ showHandler: chartModalData.changeVisible, type: 1 });
 const openRankChart = useOpenRank({ showHandler: chartModalData.changeVisible, type: 2 });
 const deverChart = useOpenRank({ showHandler: chartModalData.changeVisible, type: 3 });
 const attentChart = useOpenRank({ showHandler: chartModalData.changeVisible, type: 4 });
 const projectChart = useOpenRank({ showHandler: chartModalData.changeVisible, type: 5 });
-const reviewEfficient = useReviewEfficient(chartModalData.changeVisible);
 const github = useGithub();
 const radarFirst = useRadar();
 
@@ -146,8 +146,8 @@ const initDataStore = useInitData();
  * @description 处理全部图表的缩放
  */
 const chartResize = debounce(() => {
+	preiChart.chart.resizeChart();
 	openRankChart.chart.resizeChart();
-	reviewEfficient.chart.resizeChart();
 	radarFirst.chart.resizeChart();
 	deverChart.chart.resizeChart();
 	attentChart.chart.resizeChart();
@@ -194,11 +194,11 @@ const getInitData = async () => {
 	if (res.code === 200) {
 		nextTick(() => {
 			initDataStore.list = res.data.list || [];
+			preiChart.chart.initChart(res.data.list);
 			openRankChart.chart.initChart(res.data.list, 'openrank');
 			deverChart.chart.initChart(res.data.list, 'developer_activity');
 			attentChart.chart.initChart(res.data.list, 'project_attention');
 			projectChart.chart.initChart(res.data.list, 'project_activity');
-			reviewEfficient.chart.initChart(res.data.list);
 			radarFirst.chart.initChart(res.data.list);
 		});
 		initData.openRank = res.data.other.openrankAverage;

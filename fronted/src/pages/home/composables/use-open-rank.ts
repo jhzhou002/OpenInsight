@@ -15,7 +15,7 @@ export default function (props?: {
 	const chartRef = shallowRef<EChartsType>();
 	const container = ref<HTMLDivElement | undefined>();
 	const chart = reactive<LineChartType['chart']>({
-		selectValue: [4, 8, 9],
+		selectValue: [4, 8, 68],
 		initChart,
 		resizeChart,
 		extraOption: {}
@@ -23,19 +23,15 @@ export default function (props?: {
 
 	const intervalMap: intervalMapType = {
 		openrank: {
-			interval: 200,
 			type: 'line'
 		},
 		project_attention: {
-			interval: 200,
 			type: 'bar'
 		},
 		developer_activity: {
-			interval: 30,
 			type: 'line'
 		},
 		project_activity: {
-			interval: 400,
 			type: 'line'
 		}
 	};
@@ -127,9 +123,11 @@ export default function (props?: {
 			dataZoom: [
 				{
 					type: 'inside',
-					start: 50,
+					start: 79,
 					end: 100,
-					zoomLock: true
+					zoomOnMouseWheel: true,
+					moveOnMouseMove: true,
+					moveOnMouseWheel: false
 				}
 			],
 			xAxis: {
@@ -179,7 +177,6 @@ export default function (props?: {
 		chart.extraOption = {
 			yAxis: {
 				type: 'value',
-				interval: intervalMap[type].interval,
 				axisLabel: {
 					fontSize: getHtmlFontPX(0.75)
 				},

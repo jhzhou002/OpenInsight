@@ -8,13 +8,14 @@ import { getHtmlFontPX, handleChartResize } from '@/utils/base';
 import ThemeColor from '@/themeColor';
 import { colorList, dateList } from '../config';
 
-export default function (
-	showHandler?: (visible: boolean, type: number, selectValue: MuSelectValueType) => void
-): LineChartType {
+export default function (props?: {
+	showHandler?: (visible: boolean, type: number, selectValue: MuSelectValueType) => void;
+	type: number;
+}): LineChartType {
 	const chartRef = shallowRef<EChartsType>();
 	const container = ref<HTMLDivElement | undefined>();
 	const chart = reactive<LineChartType['chart']>({
-		selectValue: [4, 8, 9],
+		selectValue: [4, 8, 68],
 		initChart,
 		resizeChart,
 		extraOption: {}
@@ -40,23 +41,18 @@ export default function (
 				},
 				className: 'tooltip-review',
 				formatter: (params: any) => {
-					let resStr: string = `
-						<div>${params[0].axisValueLabel}</div>
-						<div> (reviews | days)</div>
-					`;
-					let i = 0;
-					while (i < params.length) {
+					let resStr: string = `<div>${params[0].axisValueLabel}</div>`;
+					params.forEach((item: any) => {
 						resStr += `
 						<div class="tooltip-item">
 							<div class="tooltip-label-icon">
-								<div class="tooltip-icon" style="background-color: ${params[i].color}"></div>
-								<div class="tooltip-label">${params[i].seriesName}：</div>
+								<span class="tooltip-icon" style="background-color: ${item.color}"></span>
+								<span class="tooltip-label">${item.seriesName}：</span>
 							</div>
-							<span class="tooltip-value">${params[i].value[1]} | ${params[i + 1].value[1]}</span>
-						</div>`;
-						i += 2;
-					}
-
+							<span class="tooltip-value">${item.value[1]}</span>
+						</div>
+						`;
+					});
 					return resStr;
 				},
 				position: function (pos, _params, _dom, _rect, size) {
@@ -75,22 +71,14 @@ export default function (
 			// grid.left grid.right grid.top grid.bottom grid.width grid.height 决定的是包括了坐标轴标签在内的所有内容所形成的矩形的位置。
 			// 这常用于『防止标签溢出』的场景，标签溢出指的是，标签长度动态变化时，可能会溢出容器或者覆盖其他组件。
 			grid: {
-				top: window.innerWidth > 576 ? '12%' : '23%',
+				top: '20%',
 				left: '5%',
 				right: '5%',
 				bottom: '5%',
 				containLabel: true
 			},
-			dataZoom: [
-				{
-					type: 'inside',
-					start: 50,
-					end: 100,
-					zoomLock: true
-				}
-			],
 			toolbox: {
-				right: !showHandler ? '2%' : '3%',
+				right: !props?.showHandler ? '2%' : '3%',
 				iconStyle: {
 					borderColor: ThemeColor.chartFontColor
 				},
@@ -101,14 +89,9 @@ export default function (
 				},
 				itemGap: Number(getHtmlFontPX(0.25).replace('px', '')),
 				itemSize: Number(getHtmlFontPX(0.875).replace('px', '')),
-
 				feature: {
-					// myRestore: {
-					// 	title: 'restore',
-					// 	icon: 'path://M512 981.333333c-209.866667 0-396.693333-126.026667-466.293333-314.08a35.52 35.52 0 0 1 23.626666-44.426666 38.613333 38.613333 0 0 1 48 20.693333c58.666667 158.933333 217.013333 265.493333 394.666667 265.6s336-106.666667 394.666667-266.133333a37.6 37.6 0 0 1 28.853333-23.626667 38.986667 38.986667 0 0 1 35.786667 11.946667 34.773333 34.773333 0 0 1 7.146666 35.36c-69.386667 188.373333-256.48 314.666667-466.453333 314.666666z m431.36-574.08a37.92 37.92 0 0 1-35.946667-24.266666C849.386667 222.56 690.613333 114.88 512 114.72S174.72 222.346667 116.746667 382.773333A38.72 38.72 0 0 1 69.333333 403.733333a35.786667 35.786667 0 0 1-24.106666-44.373333C113.333333 169.866667 301.013333 42.666667 512 42.666667s398.666667 127.306667 467.146667 316.96a34.56 34.56 0 0 1-4.906667 32.64 38.933333 38.933333 0 0 1-30.88 14.986666z',
-					// 	onclick: () => handleRestore()
-					// },
-					myModal: !showHandler
+					magicType: { type: ['line', 'bar'] },
+					myModal: !props?.showHandler
 						? {}
 						: {
 								title: '详情',
@@ -117,65 +100,35 @@ export default function (
 									// 移动端要取消默认行为不然弹窗会立刻关闭
 									// 阻止touchend后的click事件发生
 									e.event.preventDefault();
-									showHandler && showHandler(true, 1, chart.selectValue);
+									props.showHandler && props.showHandler(true, props.type, chart.selectValue);
 								}
 						  }
 				}
 			},
-
-			xAxis: [
+			dataZoom: [
 				{
-					type: 'category',
-					axisLabel: {
-						fontSize: getHtmlFontPX(0.75)
-					},
-					axisLine: {
-						lineStyle: {
-							color: ThemeColor.chartFontColor
-						}
-					},
-					axisTick: {
-						show: false
-					}
+					type: 'inside',
+					start: 79,
+					end: 100,
+					zoomOnMouseWheel: true,
+					moveOnMouseMove: true,
+					moveOnMouseWheel: false
 				}
 			],
-			yAxis: [
-				{
-					name: 'reviews',
-					max: 2500,
-					type: 'value',
-					interval: 500,
-					axisLabel: {
-						fontSize: getHtmlFontPX(0.75)
-					},
-					nameTextStyle: {
-						fontSize: getHtmlFontPX(0.75)
-					},
-					splitLine: {
-						lineStyle: {
-							color: ThemeColor.chartFontColor
-						}
+			xAxis: {
+				type: 'category',
+				axisLabel: {
+					fontSize: getHtmlFontPX(0.75)
+				},
+				axisLine: {
+					lineStyle: {
+						color: ThemeColor.chartFontColor
 					}
 				},
-				{
-					name: 'hours(h)',
-					nameLocation: 'start',
-					min: 0,
-					max: 250,
-					interval: 50,
-					type: 'value',
-					inverse: true,
-					axisLabel: {
-						fontSize: getHtmlFontPX(0.75)
-					},
-					splitLine: {
-						show: false
-					},
-					nameTextStyle: {
-						fontSize: getHtmlFontPX(0.75)
-					}
+				axisTick: {
+					show: false
 				}
-			],
+			},
 			series: []
 		};
 		// 浅合并
@@ -188,45 +141,45 @@ export default function (
 	 */
 	function initChart(nodes: PieSeriesOption['data']): any {
 		if (!container.value) return;
-
-		const reviewData: EChartsCoreOption[] = [];
+		const preiData: EChartsCoreOption[] = [];
 		nodes &&
 			nodes.forEach((item: any) => {
-				const reviewsArr: DateItem = [];
-				const timeArr: DateItem = [];
+				const data: DateItem = [];
 				dateList.forEach(key => {
-					reviewsArr.push([key, item['pr_reviews'][key] || 0]);
+					data.push([key, item['prei'][key] || 0]);
 				});
-				dateList.forEach(key => {
-					timeArr.push([key, item['pr_response_time'][key] || 0]);
-				});
-				const reviewsObj = {
+				const obj = {
 					name: item.name,
-					type: 'bar',
-					symbol: 'circle',
-					smooth: true,
-					symbolSize: 8,
-					showSymbol: false,
-					data: reviewsArr
-				};
-				const timeObj = {
-					name: item.name,
-					yAxisIndex: 1,
 					type: 'line',
 					symbol: 'circle',
 					smooth: true,
 					symbolSize: 8,
-					areaStyle: {
-						opacity: 0.4
-					},
 					showSymbol: false,
-					data: timeArr
+					data
 				};
-				reviewData.push(reviewsObj, timeObj);
+				preiData.push(obj);
 			});
-
+		chart.extraOption = {
+			yAxis: {
+				type: 'value',
+				min: 0,
+				max: 100,
+				interval: 20,
+				axisLabel: {
+					fontSize: getHtmlFontPX(0.75)
+				},
+				nameTextStyle: {
+					fontSize: getHtmlFontPX(0.75)
+				},
+				splitLine: {
+					lineStyle: {
+						color: ThemeColor.chartFontColor
+					}
+				}
+			}
+		};
 		const option = getOption();
-		option.series = reviewData;
+		option.series = preiData;
 		chartRef.value = echarts.init(container.value);
 		chartRef.value && chartRef.value.setOption(option);
 	}
@@ -249,17 +202,6 @@ export default function (
 			resetFontSize();
 		}
 	}
-
-	/**
-	 * @description 自定义toolbox restore方法
-	 */
-	// function handleRestore() {
-	// 	const option = getOption();
-	// 	if (chartRef.value) {
-	// 		chartRef.value.clear();
-	// 		chartRef.value.setOption(option);
-	// 	}
-	// }
 
 	return {
 		chart,

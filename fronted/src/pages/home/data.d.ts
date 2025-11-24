@@ -47,5 +47,7 @@ export type DateItem = [string, number][];
 
 export type intervalMapType = Record<
 	'openrank' | 'project_attention' | 'developer_activity' | 'project_activity',
-	Record<string, any>
+	{
+		type: string;
+	}
 >;
