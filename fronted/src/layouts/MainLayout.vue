@@ -5,7 +5,7 @@
 				<!-- 左侧：Logo + 平台名称 -->
 				<div class="nav-left">
 					<div class="nav-logo">
-						<div class="logo-icon">🚀</div>
+						<img src="https://qiniu.aihubzone.cn/openinsight_logo.png" alt="OpenInsight" class="logo-icon" />
 						<h1 class="platform-name">OpenInsight</h1>
 					</div>
 				</div>
@@ -85,9 +85,8 @@ onBeforeUnmount(() => {
 	display: flex;
 	align-items: center;
 	justify-content: space-between;
-	max-width: 1920px;
+	width: 100%;
 	height: 64px;
-	margin: 0 auto;
 	padding: 0 32px;
 }
 
@@ -104,8 +103,9 @@ onBeforeUnmount(() => {
 	gap: 12px;
 
 	.logo-icon {
-		font-size: 28px;
-		line-height: 1;
+		width: 32px;
+		height: 32px;
+		object-fit: contain;
 		filter: drop-shadow(0 0 8px rgba(56, 189, 248, 0.5));
 	}
 
@@ -243,7 +243,8 @@ onBeforeUnmount(() => {
 
 	.nav-logo {
 		.logo-icon {
-			font-size: 24px;
+			width: 28px;
+			height: 28px;
 		}
 
 		.platform-name {

@@ -6,17 +6,22 @@ import Analysis from '@/pages/analysis/index.vue';
 const routes = [
 	{
 		path: '/',
+		redirect: '/dashboard'
+	},
+	// 可视化大屏 - 独立页面，不使用导航栏
+	{
+		path: '/dashboard',
+		name: 'Dashboard',
+		component: Dashboard,
+		meta: {
+			title: '开源数据发展趋势-可视化大屏'
+		}
+	},
+	// 其他页面使用 MainLayout
+	{
+		path: '/',
 		component: MainLayout,
-		redirect: '/dashboard',
 		children: [
-			{
-				path: 'dashboard',
-				name: 'Dashboard',
-				component: Dashboard,
-				meta: {
-					title: '开源数据发展趋势-可视化大屏'
-				}
-			},
 			{
 				path: 'search',
 				name: 'Search',

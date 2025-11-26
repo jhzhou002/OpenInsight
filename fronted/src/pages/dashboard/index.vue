@@ -1,6 +1,7 @@
 <template>
 	<div class="home">
 		<transition-loading :isShow="loadShow" />
+		<floating-menu />
 
 		<div class="chart-list">
 			<home-header />
@@ -116,6 +117,7 @@ import ChartModal from './components/chart-modal/index.vue';
 import ListHeader from './components/list-header/index.vue';
 import IndexNum from './components/index-num/index.vue';
 import RadarList from './components/radar-list/index.vue';
+import FloatingMenu from '@/components/FloatingMenu.vue';
 
 import useOpenRank from './composables/use-open-rank';
 import useReviewEfficient from './composables/use-review-efficient';
