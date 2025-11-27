@@ -1,5 +1,6 @@
 const express = require("express");
 const { getOptions, getProjectData, getGithubData, getAllData, getInitData, getOpenRankData } = require("../router_handler/home");
+const { getAnalysisData, generateAIAnalysis } = require("../router_handler/analysis");
 
 const router = express.Router();
 
@@ -15,5 +16,10 @@ router.get("/getAllData", getAllData);
 router.get("/getInitData", getInitData);
 
 router.get("/getOpenRankData", getOpenRankData);
+
+// AI分析相关接口
+router.post("/getAnalysisData", getAnalysisData);
+
+router.post("/generateAIAnalysis", generateAIAnalysis);
 
 module.exports = router;

@@ -440,12 +440,14 @@ onBeforeUnmount(() => {
 			flex-direction: column;
 			background: transparent;
 			color: #e2e8f0;
+		overflow: hidden;
 		}
 
 		:deep(.ant-table-container) {
 			flex: 1;
 			display: flex;
 			flex-direction: column;
+		overflow: hidden;
 		}
 
 		:deep(.ant-table-thead > tr > th) {
@@ -460,7 +462,17 @@ onBeforeUnmount(() => {
 			flex: 1;
 			max-height: none;
 			height: var(--openrank-body-height);
-			overflow: hidden;
+			overflow-y: auto;
+			overflow-x: hidden;
+
+			/* 隐藏滚动条但保持滚动功能 */
+			&::-webkit-scrollbar {
+				width: 0;
+				height: 0;
+			}
+
+			scrollbar-width: none;
+			-ms-overflow-style: none;
 		}
 
 		:deep(.ant-table-tbody > tr) {
