@@ -4,10 +4,14 @@ import { message } from 'ant-design-vue';
 
 const env = import.meta.env.DEV;
 const defaultContentType = 'application/x-www-form-urlencoded; charset=UTF-8';
+
+// 获取 API 基础 URL
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || '/api';
+
 const service = axios.create({
-	baseURL: '/', // api的base_url
+	baseURL: apiBaseUrl, // api的base_url
 	timeout: 50000, // 请求超时时间
-	withCredentials: true, // 跨域携带cookie
+	withCredentials: false, // 生产环境不需要跨域携带cookie
 	validateStatus: (status: number) => {
 		return status >= 200 && status <= 500;
 	}
@@ -19,13 +23,8 @@ const service = axios.create({
  */
 const formatUrl = (config: InternalAxiosRequestConfig<any>): string | undefined => {
 	if (!config.url) return;
-	// 如果是开发环境
-	if (env) {
-		const envPath = '/api';
-		return `${envPath}${config.url}`;
-	} else {
-		return `${config.url}`;
-	}
+	// 直接返回 URL，baseURL 已经在 axios.create 中配置
+	return config.url;
 };
 
 /**
