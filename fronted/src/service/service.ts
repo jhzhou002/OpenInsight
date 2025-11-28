@@ -2,7 +2,6 @@ import axios, { AxiosError, InternalAxiosRequestConfig } from 'axios';
 import qs from 'qs';
 import { message } from 'ant-design-vue';
 
-const env = import.meta.env.DEV;
 const defaultContentType = 'application/x-www-form-urlencoded; charset=UTF-8';
 
 // 获取 API 基础 URL
