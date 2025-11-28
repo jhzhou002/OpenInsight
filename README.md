@@ -1,17 +1,6 @@
-<div align="center">
-
-```
-   ____                    ___           _       _     _
-  / __ \                  |_ _|_ __  ___(_) __ _| |__ | |_
- | |  | |_ __   ___ _ __   | || '_ \/ __| |/ _` | '_ \| __|
- | |  | | '_ \ / _ \ '_ \  | || | | \__ \ | (_| | | | | |_
- | |__| | |_) |  __/ | | ||___||_| |_|___/_|\__, |_| |_|\__|
-  \____/| .__/ \___|_| |_|                  |___/
-        | |
-        |_|
-```
-
 # OpenInsight - 开源项目趋势分析平台
+
+<div align="center">
 
 [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
 [![Vue](https://img.shields.io/badge/Vue-3.x-green.svg)](https://vuejs.org/)
