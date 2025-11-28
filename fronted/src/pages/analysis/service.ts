@@ -1,5 +1,8 @@
 import { POST } from '@/service/api';
 
+// 获取 API 基础 URL
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || '/api';
+
 export const getAnalysisData = (params: {
 	projectIds: number[];
 	metrics: string[];
@@ -19,7 +22,7 @@ export const generateAIAnalysis = async (
 	},
 	onChunk: (chunk: string) => void
 ): Promise<void> => {
-	const response = await fetch('http://127.0.0.1:8081/home/generateAIAnalysis', {
+	const response = await fetch(`${apiBaseUrl}/home/generateAIAnalysis`, {
 		method: 'POST',
 		headers: {
 			'Content-Type': 'application/json'

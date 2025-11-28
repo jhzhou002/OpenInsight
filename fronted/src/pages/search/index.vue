@@ -62,7 +62,10 @@ const checking = ref(false);
 const processing = ref(false);
 const result = ref<any>(null);
 const canRunETL = ref(false);
-const apiBase = 'http://127.0.0.1:8081/api/etl';
+
+// 获取 API 基础 URL
+const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || '/api';
+const apiBase = `${apiBaseUrl}/etl`;
 
 const loading = computed(() => checking.value || processing.value);
 
