@@ -1,180 +1,366 @@
-## 必读事项
+<div align="center">
 
-- 项目使用架构为前端`Vue3 + TS + Echarts + Pinia`等、后端`Node + Express + MySQL + PM2`等，并对项目的前端部分（即DM_screen_web文件夹）采用`Eslint/Prettier/Commitlint/Stylelint`进行开发规范约束，保证了开源贡献的规范性。
-- 项目的`开发重点`放在可视化大屏界面展示以及交互上，为项目的前端部分，因此目前建议开发者`只需要参与项目的前端部分`贡献即可
-- 由于项目已在git上开源实践，因此关于`评分所需`的开源实现内容（`包括分支、提交规范等`），请移步至[git开源地址](https://gitee.com/yuanjinwei/DM_screen_web)
-
-## 团队介绍
-
-**数据清洗-周佳豪**：负责从原始数据中提取、清洗、预处理并整理出我们需要的数据格式，以供可视化大屏展示使用。确保数据的质量和准确性，使得大屏能够准确地反映项目的趋势和信息。
-
-**项目开发-袁锦伟**：拥有丰富的前端开发技能，负责项目整体开发，使用Vue3、TS、Echarts、Pinia和Node等技术，将数据可视化大屏的页面结构和交互逻辑搭建起来。确保用户能够流畅地与大屏进行交互，给用户带来出色的体验。
-
-**数据清洗与大屏布局-赵国庆**：协助处理数据，协同团队成员对大屏布局进行设计。
-
-**大屏演示-孟源馨**：负责可视化大屏的演示，将图表以吸引人的方式展示出来，让数据变得生动有趣，容易理解，以便用户能够轻松理解和分析,以满足用户的需求。协同团队成员对大屏布局进行设计。
-
-## 组员分工
-
-| **姓名** | **职责**               |
-| -------- | ---------------------- |
-| 周佳豪   | 数据清洗、聚合指标制定 |
-| 袁锦伟   | 项目开发、项目仓库管理 |
-| 赵国庆   | 数据清洗、设计大屏布局 |
-| 孟源馨   | 大屏演示、设计大屏布局 |
-
-## 作品介绍
-
-- 作品名称：开源项目趋势分析仪表盘
-
-### 功能以及意义
-
-- **不同屏幕大小适配以及良好交互**：项目能做到`PC端与移动端`的完美适配，以576px屏幕宽度为分界，拥有不同的布局方式，同时图表也可支持`查看详情、添加删除、折柱切换、左右滑动`等交互。
-- **全面展示开源项目情况**： 通过大屏，能够全面展示开源项目的各个方面，包括PR处理效率、 OpenRank、GitHub指数、关注度、开发者活跃度、项目活跃度等指标。这有助于开发者和投资者更深入地了解项目的整体健康状况。
-- **趋势分析和热点发现：** 通过数据分析和挖掘，该大屏能够识别开源项目的趋势和热点。这意味着开发者可以更好地了解哪些项目在技术、社区参与度、可持续性等方面表现更好，投资者也可以根据数据支持决定在哪些项目上投入更多资源。
-- **用户自定义数据展示：** 大屏提供了数据交互的功能，用户可以选择项目进行对比，切换柱状图和折线图等操作。这使用户能够根据自己的需求自定义数据展示，满足不同的分析和比较需求。
-- **高性能数据可视化：** 大屏的高性能数据可视化确保数据在大屏幕上流畅展示，同时页面响应迅速，不会让用户感到等待。这提高了用户体验，使数据的解读更加流畅和高效。
-- **支持开源项目社区发展：** 该大屏有助于开源项目社区更好地了解和展示自己的工作成果，帮助他们改进项目方向和策略，提高竞争力和影响力。同时，也为投资者提供了决策支持，帮助他们选择投资有潜力的项目。
-
-### 项目地址
-
-[http://124.221.177.11/#/login](http://124.221.177.11/#/login)
-
-`视频教程地址`：[https://www.bilibili.com/video/BV1Wh4y1h7zx/?share_source=copy_web&vd_source=812ce232a8b2d63194eb8e2f0d3d90de](https://www.bilibili.com/video/BV1Wh4y1h7zx/?share_source=copy_web&vd_source=812ce232a8b2d63194eb8e2f0d3d90de)
-
-`gitee开源地址`：[https://gitee.com/yuanjinwei/DM_screen_web](https://gitee.com/yuanjinwei/DM_screen_web)
-
-`github开源地址`：[https://github.com/williamyuanjw/DM_screen_web](https://github.com/williamyuanjw/DM_screen_web)
-
-### 项目目录结构
-
-```latex
-./
-├── README.md
-├── license
-└── DM_screen_web（项目前端代码）
-└── DM_screen_node（项目后端代码）
+```
+   ____                    ___           _       _     _
+  / __ \                  |_ _|_ __  ___(_) __ _| |__ | |_
+ | |  | |_ __   ___ _ __   | || '_ \/ __| |/ _` | '_ \| __|
+ | |  | | '_ \ / _ \ '_ \  | || | | \__ \ | (_| | | | | |_
+ | |__| | |_) |  __/ | | ||___||_| |_|___/_|\__, |_| |_|\__|
+  \____/| .__/ \___|_| |_|                  |___/
+        | |
+        |_|
 ```
 
-### 项目展示
+# OpenInsight - 开源项目趋势分析平台
 
-- 登录页
+[![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
+[![Vue](https://img.shields.io/badge/Vue-3.x-green.svg)](https://vuejs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue.svg)](https://www.typescriptlang.org/)
+[![Node](https://img.shields.io/badge/Node-18.x-green.svg)](https://nodejs.org/)
 
-![img](https://file.atomgit.com/uploads/issue/1695822755285_4550.png "#left")
+一个基于 X-lab OpenDigger 数据的开源项目可视化分析平台
 
-- PC端首页
+[在线演示](https://openinsight.aihubzone.cn) | [指标说明](https://openinsight.aihubzone.cn/#/metrics-guide) | [GitHub仓库](https://github.com/jhzhou002/OpenInsight)
 
-![img](https://file.atomgit.com/uploads/issue/1695822828995_9272.png "#left")
+</div>
 
-- 小于576px设备效果
+---
 
-![img](https://file.atomgit.com/uploads/issue/1695822798143_2264.jpg "#left")
+## 📖 项目简介
 
-## 操作文档
+OpenInsight 是一个专注于开源项目数据分析与可视化的平台,通过整合 [X-lab OpenDigger](https://github.com/X-lab2017/open-digger) 提供的开源项目元数据,为开发者、项目维护者和投资者提供全方位的项目洞察。
 
-登录项目之后，在首页以关注度图表为例
+### ✨ 核心特性
 
-1. 图表可支持左右滑动，图表内长按鼠标左滑或者右滑进行不同月份的展示
-2. 右上角从左到右图标的功能分别为：切换至折线图、切换至柱状图、详情弹窗
-3. 打开详情弹窗后可以通过下拉搜索框进行输入搜索选择要添加至图表的项目，也可进行删除
+- 🎯 **多维度指标分析** - GitHub 指数、PREI 指数、OpenRank 等综合评估体系
+- 📊 **可视化大屏** - 基于 ECharts 的交互式数据可视化
+- 🔍 **项目搜索与导入** - 快速检索和导入 GitHub 开源项目
+- 📈 **项目对比分析** - 支持多项目横向对比和趋势分析
+- 🤖 **AI 智能分析** - 集成阿里通义千问,提供项目智能洞察
+- 📱 **响应式设计** - 完美适配桌面端和移动端(576px 断点)
+- ⚡ **高性能优化** - 虚拟列表、懒加载、代码分割等优化策略
 
-![img](https://file.atomgit.com/uploads/issue/1695822851010_5935.png "#left")
+---
 
-![img](https://file.atomgit.com/uploads/issue/1695822869354_7460.png "#left")
+## 🏗️ 技术架构
 
-项目中间部分的雷达图和虚拟列表可以进行交互，点击列表的项目可以添加至雷达图，点击雷达图某个项目可以展示详情，点击remove可以移除
+### 前端技术栈
 
-![img](https://file.atomgit.com/uploads/issue/1695822890128_1217.png "#left")
+- **框架**: Vue 3 + TypeScript + Vite
+- **状态管理**: Pinia
+- **UI 组件**: Ant Design Vue
+- **数据可视化**: Apache ECharts
+- **样式**: SCSS + PostCSS
+- **代码规范**: ESLint + Prettier + Husky + Commitizen
 
-![img](https://file.atomgit.com/uploads/issue/1695822908470_5895.png "#left")
+### 后端技术栈
 
+- **运行时**: Node.js 18+
+- **框架**: Express.js
+- **数据库**: MySQL 8.0+
+- **数据源**: X-lab OpenDigger (ClickHouse)
+- **AI 集成**: 阿里通义千问 API
 
+---
 
-## 设计方案
+## 📊 核心指标说明
 
-### 场景与意义
+### 1. GitHub 指数 (60-100分)
 
-**场景**：开源项目趋势分析仪表盘
+综合评估开源项目质量的复合指标,包含四个维度:
 
-**意义**：对开源项目而言，体现项目关注度最直观的数据就是star以及fork数，但由于这两种数据太过直观以及可人为操作，因此仅凭这些并不能让我们对项目的情况一目了然。因此我们将使用开放样例数据，搭建一个开源项目趋势分析仪表盘，可以展示当前最受欢迎的开源项目的使用情况、贡献者情况、开发趋势等关键指标。这样的仪表盘可以帮助开发者更好地了解当前最受欢迎的开源项目的趋势。同时，也可以帮助开源项目的贡献者和维护者了解项目的发展情况，及时调整开发策略和方向，提高项目的竞争力和影响力。
+- **影响力 (Influence)**: `0.25×stars + 0.25×forks + 0.3×issues + 0.2×PRs`
+- **反应力 (Reaction)**: `0.5×issue_comments + 0.5×pr_reviews`
+- **开发者活跃度 (Developer)**: `0.5×new_contributors + 0.5×openrank`
+- **趋势 (Trend)**: `sqrt(stars_growth)` (平方根平滑)
 
-另一方面，通过对多个开源项目的整体健康度进行分析，可以进行比较和评估单个项目与整体之间的差异。这有助于确定哪些项目在技术、社区参与度、可持续性等方面表现更好，从而更好地理解资源分配的优先级和策略，对于组织或投资者而言，这有助于决定在哪些项目上投入更多资源，以实现最大的回报和影响力。
+### 2. PREI 指数 (60-100分)
 
+评估项目处理 PR 和 Issue 效率的指标:
 
-### 实现方案（在复赛方案基础上进行了完善）
+- **响应速度 (Response)**: Issue/PR 首次响应时间
+- **解决速度 (Resolution)**: Issue/PR 平均解决时长
+- **审查效率 (Review)**: 平均每个 PR 的 Review 数量
+- **接受率 (Accept)**: PR 合并成功率
 
-- **项目架构**：前端`Vue3 + TS + Echarts + Pinia`等、后端`Node + Express + MySQL + PM2`等。项目的前端部分采用`Eslint/Prettier/Commitlint/Stylelint`进行开发规范约束，保证了开源贡献的规范性。
-- **获取数据**：通过下载数据将其挂载到docker容器并导入ClickHouse。
-- **数据处理**：使用DataGrip连接到ClickHouse数据库，从中获取需要分析的数据，并对数据进行清洗、预处理和聚合操作，生成可供展示的指标数据。
+### 3. OpenRank
 
-我组提出的指标及其依赖的数据和实现（见下表）
+基于协作网络的影响力评估算法,类似 Google PageRank,反映项目在开源生态中的全域影响力。
 
-| 指标                   | 含义                                                         | 来源                                                         | 大屏实现                                                     | 备注                                                         |
-| ---------------------- | ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------ |
-| 项目活跃度(聚合指标)   | 衡量项目的整体活跃水平和参与度                               | `issues_new`<br />`issue_comments`<br />`change_requests_reviews`<br />`change_requests` | 默认为使用折线图展示，可以通过按钮切换至柱状图，并有弹窗展示详情功能 | 弹窗展示详情可选择单个项目并对图标项目进行增删操作，实现与整体活跃度进行对比 |
-| 开发者活跃度(聚合指标) | 体现开源项目维护人员响应和解决问题的能力                     | `change_request_response_time`<br />`issue_response_time`<br />`change_request_resolution_duration`<br />`issue_resolution_duration` | 默认为使用折线图展示，可以通过按钮切换至柱状图，并有弹窗展示详情功能 | 弹窗展示详情可选择单个项目并对图标项目进行增删操作，实现与整体活跃度进行对比 |
-| 关注度(聚合指标)       | 为评估项目的可持续性和成长潜力提供参考，有助于项目的持续发展和吸引更多的贡献者和用户 | `stars`<br />`technical_fork`                                | 默认为使用柱状图展示，可以通过按钮切换至柱状图，并有弹窗展示详情功能 | 弹窗展示详情可选择单个项目并对图标项目进行增删操作，实现与整体关注度进行对比 |
-| OpenRank值             | 体现开源项目的全域影响力，通过对比也能更清晰的展示各项目的情况以及起到激励的作用 | `openrank`                                                   | 默认为使用折线图展示，可以通过按钮切换至柱状图，并有弹窗展示详情功能 | 弹窗展示详情可选择单个项目并对图标项目进行增删操作，实现与整体活跃度进行对比 |
-| Github指数             | 综合评估项目质量                                             | ![](https://file.atomgit.com/uploads/issue/1695823388549_8321.png) | 使用虚拟列表无限滚动与雷达图交互展示                         | 特征归一化处理。虚拟列表优化性能以及可以将虚拟列表的某个项目添加到雷达图中作对比 |
-| 其他单个数据指标       | 展示OpenRank以及Github指数平均值，方便用户对比               | `openrank`等                                                 | 展示指标对应单个数字并在数据变化时添加数字滚动效果           | 方便用户与整体平均值对比                                     |
+> 详细指标说明请访问: [指标说明手册](https://openinsight.aihubzone.cn/#/metrics-guide)
 
-![img](https://file.atomgit.com/uploads/issue/1695823331857_8242.png "#left")
+---
 
-![img](https://file.atomgit.com/uploads/issue/1695823350606_7782.png "#left")
+## 🚀 快速开始
 
-![img](https://file.atomgit.com/uploads/issue/1695823373729_7811.png "#left")
+### 环境要求
 
-![img](https://file.atomgit.com/uploads/issue/1695823388549_8321.png "#left")
+- Node.js >= 18.0.0
+- MySQL >= 8.0
+- npm >= 9.0.0 或 pnpm >= 8.0.0
 
+### 后端部署
 
+```bash
+# 1. 进入后端目录
+cd backend
 
-- **可视化展示**：使用Vue.js作为前端框架，搭建可视化大屏的页面结构和交互逻辑。使用Echarts作为数据可视化组件，将从DataGrip中获取的数据进行展示和分析。
-- **打包构建**：使用Vite进行打包和构建，将Vue.js和Echarts的代码打包成静态资源，减少页面加载时间和提高性能。 对使用的组件库实现`按需加载`，减少打包体积
-- **部署运行**：使用Nginx作为Web服务器，将打包好的静态资源部署到云服务器上，实现可视化大屏的在线访问。在云服务器上安装和配置Nginx，使用Nginx反向代理将大屏服务部署在公网上，实现外部用户的访问。
+# 2. 安装依赖
+npm install
 
+# 3. 配置数据库连接
+# 编辑 db/index.js,修改数据库连接信息
+# host: '你的数据库地址'
+# user: '数据库用户名'
+# password: '数据库密码'
+# database: 'opendigger'
 
+# 4. 导入数据库表结构
+# 使用 MySQL 客户端导入 backend/sql/*.sql 文件
 
-### 技术难点
+# 5. 启动服务
+npm start
+# 或使用 PM2
+pm2 start app.js --name openinsight-api
+```
 
-- **数据清洗和处理**：原始数据可能存在噪声、缺失值和异常值等问题，需要进行清洗和处理，确保数据的准确性和可用性。这可能涉及到数据清洗算法、数据结构和数据可视化等方面的技术
-- **数据可视化**：将数据以可视化的形式呈现给用户，需要考虑数据的展示方式、图表类型、颜色搭配等方面的技术。此外，还需要考虑如何提高图表可读性，以便用户能够更好地理解和分析数据
-- **数据交互**：鼠标`悬浮展示`相应数据、`柱状图折线图切换`、`下拉选择框控制图表项目增删`等功能的实现
-- **响应式适配屏幕**：对不同大小的`屏幕/设备`进行适配，控制页面组件`布局`变化，`优化用户体验并提高兼容性`，目前项目已实现对移动端设备以及PC端设备屏幕的良好适配
-- **虚拟列表自动无限滚动加载**：根据页面列表高度`控制页面渲染数据`的最大值，并实现虚拟列表的`自动滚动`并动态`分页加载`，进一步优化性能
-- **页面加载以及白屏优化**：展示页面时考虑到获取到数据的时间不确定以及背景图等图片未加载完成导致`白屏问题`，因此需要配合一些`过渡动画`以及`图片预加载`来解决该问题，并在获取数据时添加对应的loading效果，优化用户使用体验
-- **前后端分离**：为了提高系统的可维护性和扩展性，采用前后端分离的架构，需要考虑如何进行数据传输和接口设计等方面的技术
-- **性能优化**：处理大规模数据时，需要考虑如何提高系统的性能和响应速度，包括但不限于缓存优化、数据分区和数据压缩等方面的技术
-- **云部署**：为了提高系统的可用性和稳定性，采用云部署的方式，需要考虑如何进行云服务器的选择、配置和管理等方面的技术，以便快速部署和运维系统
+### 前端部署
 
+```bash
+# 1. 进入前端目录
+cd fronted
 
+# 2. 安装依赖
+npm install
 
-### 预期成果
+# 3. 配置环境变量
+# 开发环境: .env.development
+VITE_API_BASE_URL=/api
 
-- 可视化大屏的实现，能够完成对方案所提出的指标的数据大屏可视化的展示以及分析并`适配大部分屏幕/设备`。
-- 数据分析和挖掘结果的输出，能够识别出开源项目的趋势和热点，为开发者和投资者提供数据支持。
-- 数据`交互的功能`实现，能够让用户在可视化大屏上进行选择项目对比、柱状图折线图的切换等操作，以满足不同的需求。
-- 高性能的数据可视化，能够在大屏幕上流畅地展示数据，同时保证页面的快速响应和加载速度。
+# 生产环境: .env.production
+VITE_API_BASE_URL=https://your-api-domain.com/api
 
+# 4. 开发模式
+npm run dev
 
+# 5. 生产构建
+npm run build
 
-### 关于项目后续发展的Idea
+# 6. 预览构建结果
+npm run preview
+```
 
-**扩展性和可定制性**
+### Docker 部署 (推荐)
 
-- 数据源的可配置性：为了方便增加新的数据源，设计一个配置页面，允许用户在系统中添加新的数据源。在配置页面中，用户可以输入数据源的名称、类型、地址、认证方式等信息。系统可以根据用户输入的信息，自动化地连接到新的数据源并进行数据抓取和处理。
-- 数据处理和展示的可定制性：将数据处理和展示的逻辑分解成多个模块，并设计一个插件系统，允许用户自定义模块。在插件系统中，为用户提供一些模板，让用户可以基于模板进行二次开发。用户可以将自定义模块编写成独立的脚本或插件，然后将其上传到系统中进行安装和配置。
-- 系统扩展性：为了方便系统的扩展性，使用微服务架构。将数据处理和展示的不同功能拆分成独立的微服务，每个微服务负责一个具体的功能，例如数据抓取、数据存储、数据处理、数据展示等。这样，当需要增加新的功能或改变某个功能时，只需要新增或修改对应的微服务即可。
-- 可配置的页面布局：为用户提供一个可视化的页面编辑器，允许用户自定义页面布局、添加或删除组件等。用户可以通过拖拽和放置来设计自己的页面布局，并保存为一个自定义的页面。这样，用户可以根据自己的需求来创建自己的数据展示页面，提高了系统的可定制性。
+```bash
+# 构建镜像
+docker-compose build
 
-## 参与贡献
+# 启动服务
+docker-compose up -d
 
-**gitee开源地址**：[https://gitee.com/yuanjinwei/DM_screen_web](https://gitee.com/yuanjinwei/DM_screen_web)
+# 查看日志
+docker-compose logs -f
+```
 
-**github开源地址**：[https://github.com/williamyuanjw/DM_screen_web](https://github.com/williamyuanjw/DM_screen_web)
+---
 
+## 📁 项目结构
 
-1. 根据 dev 分支创建新分支
-2. 在新分支上开发 提交代码时 拉取合并 dev 分支的代码再提交
-3. 之后在 gitee 上发起代码合并请求，请求将代码合并至 master
-4. 有问题与想法欢迎大家提Issues
+```
+opendigger/
+├── backend/                 # 后端服务
+│   ├── db/                 # 数据库连接配置
+│   ├── router/             # 路由定义
+│   ├── router_handler/     # 路由处理器
+│   ├── middleware/         # 中间件
+│   ├── services/           # 业务逻辑层
+│   │   └── etl/           # ETL 数据处理
+│   ├── sql/               # 数据库表结构
+│   └── app.js             # 应用入口
+│
+├── fronted/                # 前端应用
+│   ├── src/
+│   │   ├── assets/        # 静态资源
+│   │   ├── components/    # 公共组件
+│   │   ├── layouts/       # 布局组件
+│   │   ├── pages/         # 页面组件
+│   │   │   ├── dashboard/ # 可视化大屏
+│   │   │   ├── search/    # 项目搜索
+│   │   │   ├── analysis/  # 项目分析
+│   │   │   └── metrics-guide/ # 指标说明
+│   │   ├── router/        # 路由配置
+│   │   ├── service/       # API 服务
+│   │   ├── store/         # Pinia 状态管理
+│   │   ├── utils/         # 工具函数
+│   │   └── types/         # TypeScript 类型定义
+│   ├── .env.development   # 开发环境配置
+│   ├── .env.production    # 生产环境配置
+│   └── vite.config.ts     # Vite 配置
+│
+├── CLAUDE.md              # Claude Code 项目指南
+└── README.md              # 项目文档
+```
 
+---
+
+## 🎯 核心功能
+
+### 1. 可视化大屏
+
+- **OpenRank 趋势图**: 展示项目全域影响力变化
+- **GitHub 指数排行**: Top300 项目综合评分
+- **项目活跃度分析**: Issues、PRs、Contributors 趋势
+- **开发者活跃度**: 响应时间、解决效率分析
+- **关注度指标**: Stars、Forks 增长趋势
+- **雷达图对比**: 多维度项目对比分析
+
+**交互特性**:
+- 柱状图/折线图切换
+- 图表详情弹窗
+- 项目添加/删除
+- 虚拟列表无限滚动
+- 图表左右滑动
+
+### 2. 项目搜索与导入
+
+- 输入 GitHub 仓库信息 (owner/repo)
+- 检查 OpenDigger 数据可用性
+- 一键导入项目到数据库
+- ETL 数据处理与指标计算
+
+### 3. 项目分析
+
+- 选择多个项目进行对比
+- 自定义指标和时间范围
+- AI 智能分析报告生成
+- 导出 PDF 分析报告
+
+### 4. 响应式设计
+
+- **桌面端** (>576px): 网格布局,多列展示
+- **移动端** (≤576px): 单列布局,垂直滚动
+- 图表自适应缩放
+- 触摸友好的交互
+
+---
+
+## 🔧 开发指南
+
+### 代码规范
+
+项目使用严格的代码规范工具链:
+
+```bash
+# ESLint 检查
+npm run lint:eslint
+
+# Prettier 格式化
+npm run lint:prettier
+
+# 使用 Commitizen 提交
+npm run commit
+```
+
+### Git 提交规范
+
+使用 [Conventional Commits](https://www.conventionalcommits.org/) 规范:
+
+```
+feat: 新功能
+fix: 修复 bug
+docs: 文档更新
+style: 代码格式调整
+refactor: 重构
+perf: 性能优化
+test: 测试相关
+chore: 构建/工具链更新
+```
+
+### 分支策略
+
+- `main`: 主分支,用于生产环境
+- `dev`: 开发分支,日常开发
+- `feature/*`: 功能分支
+- `fix/*`: 修复分支
+
+---
+
+## 📈 性能优化
+
+### 前端优化
+
+- **代码分割**: Vite 手动分块,按需加载第三方库
+- **虚拟列表**: 大数据列表性能优化
+- **图片懒加载**: 预加载关键图片
+- **防抖节流**: ECharts resize 防抖处理
+- **Tree Shaking**: 移除未使用代码
+- **Gzip 压缩**: 资源文件压缩
+
+### 后端优化
+
+- **连接池**: MySQL 连接池管理
+- **查询优化**: 索引优化,减少关联查询
+- **缓存策略**: 热点数据缓存
+- **错误处理**: 统一错误处理中间件
+
+---
+
+## 🌐 在线访问
+
+- **前端地址**: https://openinsight.aihubzone.cn
+- **后端 API**: https://openinsightapi.aihubzone.cn/api
+- **指标手册**: https://openinsight.aihubzone.cn/#/metrics-guide
+
+---
+
+## 🤝 参与贡献
+
+我们欢迎所有形式的贡献!
+
+### 贡献流程
+
+1. Fork 本仓库
+2. 创建特性分支 (`git checkout -b feature/AmazingFeature`)
+3. 提交更改 (`git commit -m 'feat: add some amazing feature'`)
+4. 推送到分支 (`git push origin feature/AmazingFeature`)
+5. 创建 Pull Request
+
+### 贡献指南
+
+- 遵循项目代码规范
+- 添加必要的测试
+- 更新相关文档
+- 确保 CI/CD 通过
+
+---
+
+## 📄 开源协议
+
+本项目采用 [MIT License](LICENSE) 开源协议。
+
+---
+
+## 🙏 致谢
+
+- [X-lab OpenDigger](https://github.com/X-lab2017/open-digger) - 提供开源项目元数据
+- [Apache ECharts](https://echarts.apache.org/) - 强大的数据可视化库
+- [Vue.js](https://vuejs.org/) - 渐进式 JavaScript 框架
+- [Ant Design Vue](https://antdv.com/) - 企业级 UI 组件库
+
+---
+
+## 📮 联系方式
+
+- **Issues**: [GitHub Issues](https://github.com/jhzhou002/OpenInsight/issues)
+- **讨论**: [GitHub Discussions](https://github.com/jhzhou002/OpenInsight/discussions)
+
+---
+
+<div align="center">
+
+**⭐ 如果这个项目对你有帮助,请给我们一个 Star! ⭐**
+
+Made with ❤️ by OpenInsight Team
+
+</div>
