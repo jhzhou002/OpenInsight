@@ -282,7 +282,7 @@ class ETLProcessor {
   }
 
   /**
-   * 计算PREI - 完全按照notebook逻辑
+   * 计算PREI - 完全按照PDF文档标准流程
    */
   calculatePREI(data) {
     const result = {
@@ -333,22 +333,27 @@ class ETLProcessor {
       result.pr_accept_score[month] = (acceptNorm[month] || 0) * 100;
     });
 
-    // 5. PREI综合指数（功效系数60~100）
+    // 5. PREI综合指数 - 使用baseline归一化后做功效系数（PDF标准）
     this.timeRange.forEach(month => {
+      // 计算四个维度的加权平均（0~1范围）
       const preiRaw =
         0.35 * (result.pr_response_score[month] / 100) +
         0.35 * (result.pr_resolution_score[month] / 100) +
         0.15 * (result.pr_review_score[month] / 100) +
         0.15 * (result.pr_accept_score[month] / 100);
 
-      result.pr_efficiency_index[month] = 60 + 40 * preiRaw;
+      // 使用baseline归一化
+      const preiNorm = this.normalizeWithBaseline(preiRaw, 'prei_raw', 'prei_raw_baseline');
+
+      // 功效系数：60~100
+      result.pr_efficiency_index[month] = 60 + 40 * preiNorm;
     });
 
     return result;
   }
 
   /**
-   * 计算GitHub指数 - 项目级聚合
+   * 计算GitHub指数 - 项目级聚合（PDF标准）
    */
   calculateGithubIndex(data) {
     // 聚合数据（总和）
@@ -359,6 +364,10 @@ class ETLProcessor {
     const issuesClosedSum = this.sum(data.issues_closed);
     const changeRequestsAcceptedSum = this.sum(data.change_requests_accepted);
     const newContributorsSum = this.sum(data.new_contributors);
+
+    // 计算时间指标的总和（PDF标准：需要加入社区反应维度）
+    const issueResDurationSum = this.sum(data.issue_resolution_duration);
+    const prResDurationSum = this.sum(data.change_request_resolution_duration);
 
     // 计算趋势（平均增长率）
     const trendIssue = this.calculateGrowthRate(data.issues_new);
@@ -373,9 +382,16 @@ class ETLProcessor {
       0.30 * issueNewSum +
       0.20 * changeRequestsSum;
 
+    // 社区反应 - 完整计算（PDF标准）
+    // 先归一化时间指标
+    const issueResNorm = this.normalizeWithBaseline(issueResDurationSum, 'issue_resolution_duration_sum');
+    const prResNorm = this.normalizeWithBaseline(prResDurationSum, 'change_request_resolution_duration_sum');
+
     const reactionRaw =
       0.5 * issuesClosedSum +
-      0.2 * changeRequestsAcceptedSum;
+      0.2 * changeRequestsAcceptedSum +
+      0.2 * (1 - issueResNorm) +  // 反向评分：越小越好
+      0.1 * (1 - prResNorm);       // 反向评分：越小越好
 
     const developerRaw =
       0.4 * issueNewSum +
@@ -540,11 +556,17 @@ class ETLProcessor {
   }
 
   /**
-   * 使用baseline归一化
+   * 使用baseline归一化 - 支持不同的baseline类型
+   * @param {number} value - 要归一化的值
+   * @param {string} dimension - 维度名称
+   * @param {string} baselineType - baseline类型 ('github_raw_baseline' 或 'prei_raw_baseline')
    */
-  normalizeWithBaseline(value, dimension) {
-    const baseline = this.baseline.github_raw_baseline[dimension];
-    if (!baseline) return 0;
+  normalizeWithBaseline(value, dimension, baselineType = 'github_raw_baseline') {
+    const baseline = this.baseline[baselineType]?.[dimension];
+    if (!baseline) {
+      console.warn(`⚠️ Baseline未找到: ${baselineType}.${dimension}`);
+      return 0;
+    }
 
     const { min, max } = baseline;
     if (max === min) return 0;
