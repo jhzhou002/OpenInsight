@@ -216,10 +216,10 @@ python.on('close', (code) => {
 ### 数据库配置（config.py）
 ```python
 self.db_config = {
-    'host': '49.235.74.98',
-    'user': 'remote',
-    'password': 'Zhjh0704.',
-    'database': 'opendigger',
+    'host': localhost,
+    'user': username,
+    'password': pwd,
+    'database': db,
     'charset': 'utf8mb4'
 }
 ```
