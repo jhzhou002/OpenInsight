@@ -35,13 +35,15 @@ def verify_baseline_structure(baseline: dict) -> bool:
     print("\n2. 检查github_raw_baseline...")
     github_baseline = baseline.get('github_raw_baseline', {})
 
+    # PDF要求：14个字段（7组min/max）
     required_github_keys = [
-        'influence_raw',
-        'reaction_raw',
-        'developer_raw',
-        'trend_raw',
-        'issue_resolution_duration_sum',
-        'change_request_resolution_duration_sum'
+        'influence_raw',           # 影响力维度
+        'reaction_raw',            # 社区反应维度
+        'developer_raw',           # 开发者活跃度维度
+        'trend_raw',               # 发展趋势维度
+        'github_raw',              # GitHub综合得分（新增，PDF步骤4）
+        'issue_resolution',        # 时间指标1（简短命名）
+        'pr_resolution'            # 时间指标2（简短命名）
     ]
 
     for key in required_github_keys:
@@ -94,15 +96,16 @@ def print_baseline_json(baseline: dict):
 
 
 if __name__ == "__main__":
-    # 示例：验证一个完整的baseline
+    # 示例：验证一个完整的baseline（14个字段）
     sample_baseline = {
         "github_raw_baseline": {
             "influence_raw": {"min": 1111.55, "max": 856491.8},
             "reaction_raw": {"min": 43.8, "max": 856491.8},
             "developer_raw": {"min": 1988.7, "max": 603686.5},
             "trend_raw": {"min": -0.02, "max": 1.64},
-            "issue_resolution_duration_sum": {"min": 0.0, "max": 100000.0},
-            "change_request_resolution_duration_sum": {"min": 0.0, "max": 100000.0}
+            "github_raw": {"min": 0.0, "max": 1.0},  # 新增
+            "issue_resolution": {"min": 0.0, "max": 100000.0},  # 改名
+            "pr_resolution": {"min": 0.0, "max": 100000.0}  # 改名
         },
         "prei_raw_baseline": {
             "prei_raw": {"min": 0.0, "max": 1.0}

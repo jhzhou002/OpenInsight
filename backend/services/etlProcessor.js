@@ -383,9 +383,9 @@ class ETLProcessor {
       0.20 * changeRequestsSum;
 
     // 社区反应 - 完整计算（PDF标准）
-    // 先归一化时间指标
-    const issueResNorm = this.normalizeWithBaseline(issueResDurationSum, 'issue_resolution_duration_sum');
-    const prResNorm = this.normalizeWithBaseline(prResDurationSum, 'change_request_resolution_duration_sum');
+    // 先归一化时间指标（使用新的简短命名）
+    const issueResNorm = this.normalizeWithBaseline(issueResDurationSum, 'issue_resolution');
+    const prResNorm = this.normalizeWithBaseline(prResDurationSum, 'pr_resolution');
 
     const reactionRaw =
       0.5 * issuesClosedSum +
@@ -404,25 +404,37 @@ class ETLProcessor {
     const devNorm = this.normalizeWithBaseline(developerRaw, 'developer_raw');
     const trendNorm = this.normalizeWithBaseline(trendRaw, 'trend_raw');
 
-    // 平方根平滑
+    // 步骤2: 平方根平滑（PDF步骤2）
     const infSmooth = Math.sqrt(Math.max(0, infNorm));
     const reactSmooth = Math.sqrt(Math.max(0, reactNorm));
     const devSmooth = Math.sqrt(Math.max(0, devNorm));
     const trendSmooth = Math.sqrt(Math.max(0, trendNorm));
 
-    // 加权合成
-    const combined =
+    // 步骤3: 加权合成 Github_raw（PDF步骤3）
+    const githubRaw =
       0.3 * infSmooth +
       0.2 * reactSmooth +
       0.2 * devSmooth +
       0.3 * trendSmooth;
 
+    // 步骤4: 对 Github_raw 归一化，然后做功效系数（PDF步骤4）
+    const githubNorm = this.normalizeWithBaseline(githubRaw, 'github_raw');
+    const githubIndex = 60 + 40 * githubNorm;
+
+    // 步骤5: 对四个维度的平滑值再归一化并做功效系数（仅展示用，PDF步骤5）
+    // 注意：这里需要对平滑值再归一化，但单个项目没有其他项目对比
+    // 所以这里直接使用功效系数映射到60-100范围
+    const influenceIndex = 60 + 40 * infSmooth;
+    const reactionIndex = 60 + 40 * reactSmooth;
+    const developerIndex = 60 + 40 * devSmooth;
+    const trendIndex = 60 + 40 * trendSmooth;
+
     return {
-      github_index: 60 + 40 * combined,
-      influence_index: infSmooth * 100,
-      reaction_index: reactSmooth * 100,
-      developer_index: devSmooth * 100,
-      trend_index: trendSmooth * 100
+      github_index: githubIndex,
+      influence_index: influenceIndex,
+      reaction_index: reactionIndex,
+      developer_index: developerIndex,
+      trend_index: trendIndex
     };
   }
 

@@ -184,7 +184,7 @@ class MetricsCalculator:
             0.1 * (1 - pr_res_norm)        # 反向评分：越小越好
         )
 
-        # 生成baseline（记录所有维度的min/max）
+        # 生成baseline（记录所有维度的min/max，共14个字段）
         baseline = {
             'influence_raw': {
                 'min': float(result_df['influence_raw'].min()),
@@ -202,12 +202,12 @@ class MetricsCalculator:
                 'min': float(result_df['trend_raw'].min()),
                 'max': float(result_df['trend_raw'].max())
             },
-            # 时间指标的baseline（用于单个项目计算）
-            'issue_resolution_duration_sum': {
+            # 时间指标的baseline（用于单个项目计算，使用简短命名）
+            'issue_resolution': {
                 'min': float(result_df['issue_res_sum'].min()),
                 'max': float(result_df['issue_res_sum'].max())
             },
-            'change_request_resolution_duration_sum': {
+            'pr_resolution': {
                 'min': float(result_df['pr_res_sum'].min()),
                 'max': float(result_df['pr_res_sum'].max())
             }
@@ -223,22 +223,35 @@ class MetricsCalculator:
         result_df['developer_smooth'] = np.sqrt(result_df['developer_raw_norm'].clip(0, 1))
         result_df['trend_smooth'] = np.sqrt(result_df['trend_raw_norm'].clip(0, 1))
 
-        # 加权合成
-        result_df['github_combined'] = (
+        # 步骤3: 用平滑值加权计算综合得分 Github_raw（PDF步骤3）
+        result_df['github_raw'] = (
             0.3 * result_df['influence_smooth'] +
             0.2 * result_df['reaction_smooth'] +
             0.2 * result_df['developer_smooth'] +
             0.3 * result_df['trend_smooth']
         )
 
-        # 功效系数
-        result_df['github_index'] = 60 + 40 * result_df['github_combined']
+        # 添加 github_raw 到 baseline（PDF要求）
+        baseline['github_raw'] = {
+            'min': float(result_df['github_raw'].min()),
+            'max': float(result_df['github_raw'].max())
+        }
 
-        # 四维度×100用于展示
-        result_df['influence_index'] = result_df['influence_smooth'] * 100
-        result_df['reaction_index'] = result_df['reaction_smooth'] * 100
-        result_df['developer_index'] = result_df['developer_smooth'] * 100
-        result_df['trend_index'] = result_df['trend_smooth'] * 100
+        # 步骤4: 对 Github_raw 再做一次 Min-Max 归一化，然后做功效系数（PDF步骤4）
+        github_norm = self._min_max_norm(result_df['github_raw'])
+        result_df['github_index'] = 60 + 40 * github_norm
+
+        # 步骤5: 为展示效果，对四个维度的平滑结果再归一化并做功效系数（PDF步骤5）
+        # 这仅用于展示，不影响综合得分计算
+        influence_display_norm = self._min_max_norm(result_df['influence_smooth'])
+        reaction_display_norm = self._min_max_norm(result_df['reaction_smooth'])
+        developer_display_norm = self._min_max_norm(result_df['developer_smooth'])
+        trend_display_norm = self._min_max_norm(result_df['trend_smooth'])
+
+        result_df['influence_index'] = 60 + 40 * influence_display_norm
+        result_df['reaction_index'] = 60 + 40 * reaction_display_norm
+        result_df['developer_index'] = 60 + 40 * developer_display_norm
+        result_df['trend_index'] = 60 + 40 * trend_display_norm
 
         # 保留需要的列
         github_df = result_df[[

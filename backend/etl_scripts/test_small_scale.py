@@ -74,6 +74,44 @@ def test_small_scale(top_n: int = 10):
         # 显示baseline详情
         print_baseline_json(baseline)
 
+        # ========== 导出数据到本地文件 ==========
+        print("\n" + "=" * 70)
+        print("导出数据到本地文件")
+        print("=" * 70)
+
+        timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+
+        # 1. 导出完整数据到CSV
+        output_file_full = f'test_result_full_{timestamp}.csv'
+        df_final.to_csv(output_file_full, index=False, encoding='utf-8-sig')
+        print(f"  1. 完整数据: {output_file_full} ({len(df_final)} 条记录)")
+
+        # 2. 导出月度数据样本（按项目-日期）
+        output_file_monthly = f'test_result_monthly_{timestamp}.csv'
+        monthly_cols = ['company', 'project', 'date',
+                        'project_activity_index', 'pr_efficiency_index',
+                        'github_index', 'openrank']
+        if all(col in df_final.columns for col in monthly_cols):
+            df_final[monthly_cols].to_csv(output_file_monthly, index=False, encoding='utf-8-sig')
+            print(f"  2. 月度数据: {output_file_monthly}")
+
+        # 3. 导出GitHub指数汇总（去重，每个项目一条记录）
+        output_file_github = f'test_result_github_{timestamp}.csv'
+        github_cols = ['company', 'project', 'github_index',
+                       'influence_index', 'reaction_index',
+                       'developer_index', 'trend_index']
+        github_df = df_final[github_cols].drop_duplicates(subset=['company', 'project']).sort_values('github_index', ascending=False)
+        github_df.to_csv(output_file_github, index=False, encoding='utf-8-sig')
+        print(f"  3. GitHub指数: {output_file_github} ({len(github_df)} 个项目)")
+
+        # 4. 导出baseline到JSON
+        output_file_baseline = f'test_baseline_{timestamp}.json'
+        with open(output_file_baseline, 'w', encoding='utf-8') as f:
+            json.dump(baseline, f, ensure_ascii=False, indent=2)
+        print(f"  4. Baseline: {output_file_baseline}")
+
+        print("\n  所有文件已保存到当前目录！")
+
         # 显示部分数据样本
         print("\n" + "=" * 70)
         print("数据样本（前5条）")
@@ -87,12 +125,8 @@ def test_small_scale(top_n: int = 10):
 
         # 显示GitHub指数样本
         print("\n" + "=" * 70)
-        print("GitHub指数样本")
+        print("GitHub指数样本（按分数排序）")
         print("=" * 70)
-        github_cols = ['company', 'project', 'github_index',
-                       'influence_index', 'reaction_index',
-                       'developer_index', 'trend_index']
-        github_df = df_final[github_cols].drop_duplicates(subset=['company', 'project'])
         print(github_df.to_string())
 
         # 统计信息
