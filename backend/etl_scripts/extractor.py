@@ -19,6 +19,9 @@ class DataExtractor:
         self.session.headers.update({
             'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36'
         })
+        # 禁用SSL警告
+        import urllib3
+        urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
 
     def fetch_top_projects(self) -> List[Dict]:
         """
@@ -31,7 +34,7 @@ class DataExtractor:
         print(f"    URL: {self.config.leaderboard_url}")
 
         try:
-            response = self.session.get(self.config.leaderboard_url, timeout=30)
+            response = self.session.get(self.config.leaderboard_url, timeout=30, verify=False)
             response.raise_for_status()
             data = response.json()
 
@@ -126,7 +129,7 @@ class DataExtractor:
         url = self.config.get_metric_url(company, project, metric)
 
         try:
-            response = self.session.get(url, timeout=self.config.timeout)
+            response = self.session.get(url, timeout=self.config.timeout, verify=False)
             response.raise_for_status()
             return response.json()
         except:

@@ -14,6 +14,14 @@ const setTitle = (to: RouteLocationNormalized) => {
 // 路由拦截
 router.beforeEach(to => {
 	setTitle(to);
+
+	// 管理员页面认证检查
+	if (to.meta.requiresAuth) {
+		const token = localStorage.getItem('admin_token');
+		if (!token) {
+			return '/admin';
+		}
+	}
 });
 
 export default router;

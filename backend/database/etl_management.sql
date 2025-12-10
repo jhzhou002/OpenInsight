@@ -56,11 +56,12 @@ CREATE TABLE etl_logs (
 ) COMMENT 'ETL日志表';
 
 -- 4. 定时任务配置表
-CREATE TABLE etl_schedules (
+CREATE TABLE IF NOT EXISTS etl_schedules (
   id INT PRIMARY KEY AUTO_INCREMENT,
   schedule_name VARCHAR(200) NOT NULL COMMENT '定时任务名称',
   task_type ENUM('full', 'incremental') DEFAULT 'full' COMMENT '任务类型',
   cron_expression VARCHAR(100) NOT NULL COMMENT 'Cron表达式',
+  task_config JSON COMMENT '任务配置(time_start, time_end等)',
   is_enabled TINYINT(1) DEFAULT 1 COMMENT '是否启用',
   last_run_at DATETIME COMMENT '上次运行时间',
   next_run_at DATETIME COMMENT '下次运行时间',

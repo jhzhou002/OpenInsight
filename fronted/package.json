@@ -18,6 +18,7 @@
 		"@types/qs": "^6.9.8",
 		"ant-design-vue": "^3.2.20",
 		"axios": "^1.4.0",
+		"cron-parser": "^4.9.0",
 		"dayjs": "^1.11.7",
 		"echarts": "^5.4.2",
 		"gsap": "^3.12.2",

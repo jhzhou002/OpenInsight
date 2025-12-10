@@ -11,7 +11,7 @@
  Target Server Version : 80036
  File Encoding         : 65001
 
- Date: 10/12/2025 02:18:34
+ Date: 10/12/2025 22:42:24
 */
 
 SET NAMES utf8mb4;
@@ -31,6 +31,116 @@ CREATE TABLE `baseline_config`  (
 -- Records of baseline_config
 -- ----------------------------
 INSERT INTO `baseline_config` VALUES (1, '{\"prei_raw_baseline\": {\"prei_raw\": {\"max\": 1, \"min\": 0}}, \"github_raw_baseline\": {\"trend_raw\": {\"max\": 1.64, \"min\": -0.02}, \"reaction_raw\": {\"max\": 856491.8, \"min\": 43.8}, \"developer_raw\": {\"max\": 603686.5, \"min\": 1988.7}, \"influence_raw\": {\"max\": 856491.8, \"min\": 1111.55}, \"issue_resolution_duration_sum\": {\"max\": 100000, \"min\": 0}, \"change_request_resolution_duration_sum\": {\"max\": 100000, \"min\": 0}}}');
+
+-- ----------------------------
+-- Table structure for etl_config
+-- ----------------------------
+DROP TABLE IF EXISTS `etl_config`;
+CREATE TABLE `etl_config`  (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `config_key` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '配置键',
+  `config_value` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '配置值',
+  `description` varchar(500) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '配置说明',
+  `updated_at` datetime NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  `updated_by` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '更新人',
+  PRIMARY KEY (`id`) USING BTREE,
+  UNIQUE INDEX `config_key`(`config_key` ASC) USING BTREE,
+  INDEX `idx_key`(`config_key` ASC) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 6 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = 'ETL配置表' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of etl_config
+-- ----------------------------
+INSERT INTO `etl_config` VALUES (1, 'time_range', '{\"start\": \"2021-01\", \"end\": \"2025-10\"}', 'Time range', '2025-12-10 03:14:06', NULL);
+INSERT INTO `etl_config` VALUES (2, 'max_workers', '{\"value\": 20}', 'Max workers', '2025-12-10 03:14:06', NULL);
+INSERT INTO `etl_config` VALUES (3, 'timeout', '{\"value\": 10}', 'Timeout sec', '2025-12-10 03:14:06', NULL);
+INSERT INTO `etl_config` VALUES (4, 'python_path', '{\"value\": \"python\"}', 'Python path', '2025-12-10 03:14:06', NULL);
+INSERT INTO `etl_config` VALUES (5, 'script_path', '{\"value\": \"backend/etl_scripts/main.py\"}', 'Script path', '2025-12-10 03:14:06', NULL);
+
+-- ----------------------------
+-- Table structure for etl_logs
+-- ----------------------------
+DROP TABLE IF EXISTS `etl_logs`;
+CREATE TABLE `etl_logs`  (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `task_id` int NOT NULL COMMENT '浠诲姟ID',
+  `log_level` enum('info','warning','error') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT 'info' COMMENT '鏃ュ織绾у埆',
+  `log_step` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '鎵ц?姝ラ?',
+  `log_message` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL COMMENT '鏃ュ織鍐呭?',
+  `log_data` json NULL COMMENT '闄勫姞鏁版嵁',
+  `created_at` datetime NULL DEFAULT CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `idx_task_id`(`task_id` ASC) USING BTREE,
+  INDEX `idx_created_at`(`created_at` ASC) USING BTREE,
+  INDEX `idx_level`(`log_level` ASC) USING BTREE,
+  CONSTRAINT `etl_logs_ibfk_1` FOREIGN KEY (`task_id`) REFERENCES `etl_tasks` (`id`) ON DELETE CASCADE ON UPDATE RESTRICT
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = 'ETL鏃ュ織琛' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of etl_logs
+-- ----------------------------
+INSERT INTO `etl_logs` VALUES (1, 1, 'info', 'START', 'ETL任务开始执行 (2021-01 ~ 2025-10)', NULL, '2025-12-10 22:41:31');
+INSERT INTO `etl_logs` VALUES (2, 1, 'info', 'START', 'ETL����ʼ', '{\"task_id\": 1, \"time_range\": \"2021-01 ~ 2025-10\"}', '2025-12-10 22:41:33');
+INSERT INTO `etl_logs` VALUES (3, 1, 'info', 'CONFIG', '���ó�ʼ�����', '{\"time_range_months\": 58}', '2025-12-10 22:41:33');
+INSERT INTO `etl_logs` VALUES (4, 1, 'info', 'STEP_1', '��ʼ��ȡTop300��Ŀ��Ϣ', '{}', '2025-12-10 22:41:33');
+INSERT INTO `etl_logs` VALUES (5, 1, 'error', 'FAILED', 'ETL����ʧ��: HTTPSConnectionPool(host=\'oss.x-lab.info\', port=443): Max retries exceeded with url: /open_leaderboard/open_rank/repo/global/2025.json (Caused by SSLError(SSLCertVerificationError(1, \"[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: Hostname mismatch, certificate is not valid for \'oss.x-lab.info\'. (_ssl.c:997)\")))', '{\"error\": \"HTTPSConnectionPool(host=\'oss.x-lab.info\', port=443): Max retries exceeded with url: /open_leaderboard/open_rank/repo/global/2025.json (Caused by SSLError(SSLCertVerificationError(1, \\\"[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: Hostname mismatch, certificate is not valid for \'oss.x-lab.info\'. (_ssl.c:997)\\\")))\", \"elapsed_time_seconds\": 21}', '2025-12-10 22:41:54');
+INSERT INTO `etl_logs` VALUES (6, 1, 'error', 'FAILED', 'ETL����ʧ��: HTTPSConnectionPool(host=\'oss.x-lab.info\', port=443): Max retries exceeded with url: /open_leaderboard/open_rank/repo/global/2025.json (Caused by SSLError(SSLCertVerificationError(1, \"[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: Hostname mismatch, certificate is not valid for \'oss.x-lab.info\'. (_ssl.c:997)\")))', '{\"error\": \"HTTPSConnectionPool(host=\'oss.x-lab.info\', port=443): Max retries exceeded with url: /open_leaderboard/open_rank/repo/global/2025.json (Caused by SSLError(SSLCertVerificationError(1, \\\"[SSL: CERTIFICATE_VERIFY_FAILED] certificate verify failed: Hostname mismatch, certificate is not valid for \'oss.x-lab.info\'. (_ssl.c:997)\\\")))\"}', '2025-12-10 22:41:55');
+INSERT INTO `etl_logs` VALUES (7, 1, 'error', 'FAILED', '进程异常退出，退出码: 1', NULL, '2025-12-10 22:41:55');
+
+-- ----------------------------
+-- Table structure for etl_schedules
+-- ----------------------------
+DROP TABLE IF EXISTS `etl_schedules`;
+CREATE TABLE `etl_schedules`  (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `schedule_name` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '定时任务名称',
+  `task_type` enum('full','incremental') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT 'full' COMMENT '任务类型',
+  `cron_expression` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT 'Cron表达式',
+  `task_config` json NULL COMMENT '任务配置(time_start, time_end等)',
+  `is_enabled` tinyint(1) NULL DEFAULT 1 COMMENT '是否启用',
+  `last_run_at` datetime NULL DEFAULT NULL COMMENT '上次运行时间',
+  `next_run_at` datetime NULL DEFAULT NULL COMMENT '下次运行时间',
+  `created_at` datetime NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` datetime NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `idx_enabled`(`is_enabled` ASC) USING BTREE,
+  INDEX `idx_next_run`(`next_run_at` ASC) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 2 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = 'ETL定时任务配置表' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of etl_schedules
+-- ----------------------------
+INSERT INTO `etl_schedules` VALUES (1, 'Monthly Auto Update', 'full', '0 2 1 * *', '{\"time_end\": \"2025-10\", \"time_start\": \"2021-01\"}', 1, NULL, '2026-01-01 02:00:00', '2025-12-10 03:14:06', '2025-12-10 22:33:52');
+
+-- ----------------------------
+-- Table structure for etl_tasks
+-- ----------------------------
+DROP TABLE IF EXISTS `etl_tasks`;
+CREATE TABLE `etl_tasks`  (
+  `id` int NOT NULL AUTO_INCREMENT,
+  `task_name` varchar(200) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NOT NULL COMMENT '浠诲姟鍚嶇О',
+  `task_type` enum('full','incremental') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT 'full' COMMENT '浠诲姟绫诲瀷锛歠ull=鍏ㄩ噺锛宨ncremental=澧為噺',
+  `status` enum('pending','running','success','failed','cancelled') CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT 'pending' COMMENT '浠诲姟鐘舵?',
+  `time_start` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '鏁版嵁璧峰?鏃堕棿 YYYY-MM',
+  `time_end` varchar(20) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '鏁版嵁缁撴潫鏃堕棿 YYYY-MM',
+  `total_projects` int NULL DEFAULT 0 COMMENT '鎬婚」鐩?暟',
+  `processed_projects` int NULL DEFAULT 0 COMMENT '宸插?鐞嗛」鐩?暟',
+  `total_records` int NULL DEFAULT 0 COMMENT '鎬昏?褰曟暟',
+  `current_step` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT NULL COMMENT '褰撳墠鎵ц?姝ラ?',
+  `error_message` text CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL COMMENT '閿欒?淇℃伅',
+  `created_at` datetime NULL DEFAULT CURRENT_TIMESTAMP,
+  `started_at` datetime NULL DEFAULT NULL COMMENT '寮??鏃堕棿',
+  `finished_at` datetime NULL DEFAULT NULL COMMENT '缁撴潫鏃堕棿',
+  `created_by` varchar(100) CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci NULL DEFAULT 'admin' COMMENT '鍒涘缓浜',
+  PRIMARY KEY (`id`) USING BTREE,
+  INDEX `idx_status`(`status` ASC) USING BTREE,
+  INDEX `idx_created_at`(`created_at` ASC) USING BTREE
+) ENGINE = InnoDB AUTO_INCREMENT = 1 CHARACTER SET = utf8mb4 COLLATE = utf8mb4_unicode_ci COMMENT = 'ETL浠诲姟琛' ROW_FORMAT = Dynamic;
+
+-- ----------------------------
+-- Records of etl_tasks
+-- ----------------------------
+INSERT INTO `etl_tasks` VALUES (1, '手动触发: Monthly Auto Update', 'full', 'failed', '2021-01', '2025-10', 0, 0, 0, 'FAILED', '进程异常退出，退出码: 1', '2025-12-10 22:41:31', '2025-12-10 22:41:31', '2025-12-10 22:41:55', 'admin');
 
 -- ----------------------------
 -- Table structure for github

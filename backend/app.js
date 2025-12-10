@@ -1,5 +1,6 @@
 const express = require("express");
 const cors = require("cors");
+const etlScheduler = require("./services/etlScheduler");
 
 const app = express();
 
@@ -38,6 +39,26 @@ app.use((err, req, res, next) => {
   res.cc(err.message || "服务器内部错误", 500);
 });
 
-app.listen(8081, () => {
-  console.log("服务启动");
+app.listen(8081, async () => {
+  console.log("服务启动成功，端口：8081");
+
+  // 启动ETL定时任务调度器
+  try {
+    await etlScheduler.initScheduler();
+  } catch (error) {
+    console.error("ETL调度器启动失败:", error);
+  }
+});
+
+// 优雅关闭
+process.on('SIGTERM', () => {
+  console.log('收到SIGTERM信号，正在关闭服务...');
+  etlScheduler.stopAll();
+  process.exit(0);
+});
+
+process.on('SIGINT', () => {
+  console.log('收到SIGINT信号，正在关闭服务...');
+  etlScheduler.stopAll();
+  process.exit(0);
 });

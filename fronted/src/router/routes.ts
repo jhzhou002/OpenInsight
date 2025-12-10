@@ -3,6 +3,8 @@ import Dashboard from '@/pages/dashboard/index.vue';
 import Search from '@/pages/search/index.vue';
 import Analysis from '@/pages/analysis/index.vue';
 import MetricsGuide from '@/pages/metrics-guide/index.vue';
+import AdminLogin from '@/pages/admin/Login.vue';
+import AdminDashboard from '@/pages/admin/Dashboard.vue';
 
 const routes = [
 	{
@@ -53,6 +55,24 @@ const routes = [
 	{
 		path: '/home',
 		redirect: '/dashboard'
+	},
+	// 管理员页面
+	{
+		path: '/admin',
+		name: 'AdminLogin',
+		component: AdminLogin,
+		meta: {
+			title: 'OpenInsight - 管理员登录'
+		}
+	},
+	{
+		path: '/admin/dashboard',
+		name: 'AdminDashboard',
+		component: AdminDashboard,
+		meta: {
+			title: 'OpenInsight - ETL管理',
+			requiresAuth: true
+		}
 	}
 ];
 

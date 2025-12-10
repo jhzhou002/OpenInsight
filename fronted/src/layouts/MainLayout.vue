@@ -67,7 +67,7 @@ const currentTime = ref('');
 let timer: number | null = null;
 
 const updateTime = () => {
-	currentTime.value = dayjs().format('YYYY/MM/DD 星期dddd HH:mm:ss');
+	currentTime.value = dayjs().format('YYYY/MM/DD dddd HH:mm:ss');
 };
 
 onMounted(() => {
