@@ -1,10 +1,10 @@
 const mysql = require('mysql')
 
 const db = mysql.createPool({
-    host: localhost,
-    user: username,
-    password: pwd,
-    database: db,
+    host: '49.235.74.98',
+    user: 'remote',
+    password: 'Zhjh0704.',
+    database: 'opendigger',
     connectionLimit: 10,
     waitForConnections: true,
     queueLimit: 0,
@@ -14,7 +14,7 @@ const db = mysql.createPool({
 })
 
 // 处理连接错误
-db.on('error', function(err) {
+db.on('error', function (err) {
     console.error('Database error:', err);
     if (err.code === 'PROTOCOL_CONNECTION_LOST') {
         console.error('Database connection was closed.');

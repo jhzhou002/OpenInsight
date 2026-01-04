@@ -59,9 +59,9 @@ OpenInsight 是一个专注于开源项目数据分析与可视化的平台,通�
 综合评估开源项目质量的复合指标,包含四个维度:
 
 - **影响力 (Influence)**: `0.25×stars + 0.25×forks + 0.3×issues + 0.2×PRs`
-- **反应力 (Reaction)**: `0.5×issue_comments + 0.5×pr_reviews`
-- **开发者活跃度 (Developer)**: `0.5×new_contributors + 0.5×openrank`
-- **趋势 (Trend)**: `sqrt(stars_growth)` (平方根平滑)
+- **反应力 (Reaction)**: `0.5×issues_closed + 0.2×prs_accepted + 0.2×(1-issue_res_time) + 0.1×(1-pr_res_time)`
+- **开发者活跃度 (Developer)**: `0.4×issues + 0.3×PRs + 0.3×new_contributors`
+- **趋势 (Trend)**: `0.4×issue_growth + 0.4×pr_growth + 0.2×contributor_growth` (月度环比增长率)
 
 ### 2. PREI 指数 (60-100分)
 

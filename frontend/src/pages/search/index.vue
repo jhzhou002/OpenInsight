@@ -48,6 +48,16 @@
 				</p>
 				<p v-if="result.details">{{ result.details }}</p>
 			</div>
+
+			<div class="usage-guide">
+				<h3>💡 使用说明</h3>
+				<ol>
+					<li>输入 GitHub 项目的 <strong>Owner</strong> (如: vuejs) 和 <strong>Repo</strong> (如: core)。</li>
+					<li>点击 <strong>检查项目</strong> 查看 OpenInsight 是否已有数据。</li>
+					<li>若数据库中未存在且 OpenDigger 有数据，点击 <strong>执行ETL</strong> 导入。</li>
+					<li>导入成功后，前往 <router-link to="/dashboard">可视化大屏</router-link> 查看详细信息。</li>
+				</ol>
+			</div>
 		</div>
 	</div>
 </template>
@@ -328,5 +338,43 @@ button:disabled {
 .status-badge.not-exists {
 	background: #fee2e2;
 	color: #991b1b;
+}
+
+.usage-guide {
+	margin-top: 32px;
+	padding-top: 24px;
+	border-top: 1px solid rgba(226, 232, 240, 0.1);
+
+	h3 {
+		font-size: 16px;
+		color: #38bdf8;
+		margin-bottom: 12px;
+		font-weight: 600;
+	}
+
+	ol {
+		padding-left: 20px;
+		color: #cbd5e1;
+		font-size: 14px;
+		line-height: 1.8;
+	}
+
+	li {
+		margin-bottom: 6px;
+	}
+
+	strong {
+		color: #e2e8f0;
+		font-weight: 600;
+	}
+
+	a {
+		color: #38bdf8;
+		text-decoration: none;
+		
+		&:hover {
+			text-decoration: underline;
+		}
+	}
 }
 </style>

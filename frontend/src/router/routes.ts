@@ -9,7 +9,7 @@ import AdminDashboard from '@/pages/admin/Dashboard.vue';
 const routes = [
 	{
 		path: '/',
-		redirect: '/dashboard'
+		redirect: '/search'
 	},
 	// 可视化大屏 - 独立页面，不使用导航栏
 	{
@@ -54,7 +54,7 @@ const routes = [
 	// 兼容旧路由
 	{
 		path: '/home',
-		redirect: '/dashboard'
+		redirect: '/search'
 	},
 	// 管理员页面
 	{

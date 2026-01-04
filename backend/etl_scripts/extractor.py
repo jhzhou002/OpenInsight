@@ -22,6 +22,9 @@ class DataExtractor:
         # 禁用SSL警告
         import urllib3
         urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning)
+        
+        # 忽略系统代理配置，避免本地代理设置导致连接失败
+        self.session.trust_env = False
 
     def fetch_top_projects(self) -> List[Dict]:
         """

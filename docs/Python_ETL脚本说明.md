@@ -246,14 +246,13 @@ self.timeout = 10       # 请求超时时间（秒）
 
 ## ⚠️ 注意事项
 
-### 1. 时间指标baseline缺失
-当前GitHub指数的社区反应维度还缺少两个时间指标的baseline：
+### 1. 社区反应维度完整性
+当前GitHub指数的社区反应维度**已完整实现**包含时间指标的计算逻辑：
 - `issue_resolution_duration_sum`
 - `change_request_resolution_duration_sum`
 
-这两个字段在`calculator.py`的`_calc_reaction`方法中已预留,但暂时使用简化版本。
-
-**建议**：首次运行ETL后,从实际数据计算这两个baseline的min/max值。
+这两个字段在`calculator.py`中已正确聚合，并生成对应的baseline (`issue_resolution`, `pr_resolution`) 用于归一化。
+Node.js端的`etlProcessor.js`也已同步支持读取这些baseline并应用完整公式。
 
 ### 2. Python环境
 - 需要Python 3.8+
@@ -281,25 +280,8 @@ self.timeout = 10       # 请求超时时间（秒）
 
 ## 📝 后续优化建议
 
-### 1. 完善社区反应维度
-在`calculator.py`的`_calc_reaction`方法中添加完整的时间指标处理：
-```python
-# 计算时间指标总和
-issue_res_sum = group['issue_resolution_duration'].sum()
-pr_res_sum = group['change_request_resolution_duration'].sum()
-
-# 归一化（使用baseline）
-issue_res_norm = normalize_with_baseline(issue_res_sum, baseline)
-pr_res_norm = normalize_with_baseline(pr_res_sum, baseline)
-
-# 完整公式
-return (
-    0.5 * issues_closed_sum +
-    0.2 * pr_accepted_sum +
-    0.2 * (1 - issue_res_norm) +
-    0.1 * (1 - pr_res_norm)
-)
-```
+### 1. 完善社区反应维度 (✅ 已完成)
+~在`calculator.py`的`_calc_reaction`方法中添加完整的时间指标处理~ (已实现)
 
 ### 2. 增量更新支持
 未来可以只处理新增月份的数据：
