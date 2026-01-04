@@ -32,6 +32,7 @@ export type RadarChartType = {
 		initChart(nodes: PieSeriesOption['data']): void;
 		resizeChart(): void;
 		addRadarData(name: string): void;
+		updateFromIds(ids: number[], sourceList: any[]): void;
 	};
 	container: Ref<HTMLDivElement | undefined>;
 	chartRef: Ref<EChartsType | undefined>;

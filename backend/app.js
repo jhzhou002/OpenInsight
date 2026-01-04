@@ -33,6 +33,11 @@ app.use("/api/home", homeRouter);
 const etlRouter = require("./router/etl");
 app.use("/api/etl", etlRouter);
 
+// 支持History模式路由，所有非API请求返回index.html
+app.get('*', (req, res) => {
+  res.sendFile(__dirname + '/dist/index.html');
+});
+
 // 定义错误级别中间件
 app.use((err, req, res, next) => {
   console.error(err);

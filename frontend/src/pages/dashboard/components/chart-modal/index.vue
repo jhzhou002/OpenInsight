@@ -64,7 +64,7 @@ const props = defineProps({
 		required: true
 	}
 });
-const emit = defineEmits(['update:visible', 'ok']);
+const emit = defineEmits(['update:visible', 'ok', 'update:selectValue']);
 
 const isShow = computed({
 	get() {
@@ -80,6 +80,8 @@ const selectValue = ref<MuSelectValueType>([]);
 const chartResize = debounce(() => {
 	chartDataObj[props.type].data.chart.resizeChart();
 }, 500);
+
+// ... (keep chartDataObj and initChartOptions as is) ...
 
 const chartDataObj: chartDataObjType = {
 	1: {
@@ -146,83 +148,27 @@ const initChartOptions = () => {
 	};
 };
 
-const handleSelectLine = async (value: number, name: string) => {
-	const res = await getProjectData({
-		type: chartDataObj[props.type].key as string,
-		project_id: value
-	});
-
-	if (res.code === 200) {
-		const dataArr: DateItem = [];
-		dateList.forEach(key => {
-			dataArr.push([key, +res.data[key] || 0]);
-		});
-
-		const curOptions = chartDataObj[props.type].data.chartRef.value?.getOption();
-
-		let chartType = chartDataObj[props.type].chartType;
-
-		if (curOptions && Array.isArray(curOptions.series)) {
-			curOptions.series[0] && (chartType = curOptions.series[0].type);
-			const obj = {
-				name,
-				type: chartType,
-				symbol: 'circle',
-				smooth: true,
-				symbolSize: 8,
-				showSymbol: false,
-				data: dataArr
-			};
-			curOptions.series.push(obj);
-			chartDataObj[props.type].data.chartRef.value?.setOption(curOptions);
-		}
-	}
-};
-
-const handleSelectPr = async (value: number, name: string) => {
-	const res = await getProjectData({
-		type: 'prei',
-		project_id: value
-	});
-
-	if (res.code === 200) {
-		const dataArr: DateItem = [];
-		dateList.forEach(key => {
-			dataArr.push([key, +res.data[key] || 0]);
-		});
-
-		const curOptions = chartDataObj[props.type].data.chartRef.value?.getOption();
-
-		let chartType = chartDataObj[props.type].chartType || 'line';
-
-		if (curOptions && Array.isArray(curOptions.series)) {
-			curOptions.series[0] && (chartType = curOptions.series[0].type);
-			const obj = {
-				name,
-				type: chartType,
-				symbol: 'circle',
-				smooth: true,
-				symbolSize: 8,
-				showSymbol: false,
-				data: dataArr
-			};
-			curOptions.series.push(obj);
-			chartDataObj[props.type].data.chartRef.value?.setOption(curOptions);
-		}
-	}
-};
-
 const handleSelect = async (value: any, option: any) => {
 	if (selectValue.value.length > 5) {
 		selectValue.value = selectValue.value.slice(0, 5);
 		return message.warning('最多只能选择5个项目');
 	}
-	props.type === 1 && handleSelectPr(value, option.label);
-	props.type !== 1 && handleSelectLine(value, option.label);
+
+	// 1. 确保数据在 store 中 (使用统一的 fetchFullProjectData 获取所有指标，包括雷达数据)
+	await initDataStore.fetchFullProjectData(value, option.label);
+	
+	// 2. 通知父组件 (触发首页图表更新)
+	emit('update:selectValue', selectValue.value);
+
+	// 3. 更新当前弹窗内的图表
+	const key = chartDataObj[props.type].key;
+	chartDataObj[props.type].data.chart.selectValue = selectValue.value; 
+	chartDataObj[props.type].data.chart.initChart(initDataStore.list, key);
 };
 
 const handleDel = async (_: any, option: any) => {
 	const label = option.label;
+	emit('update:selectValue', selectValue.value);
 	const curOptions = chartDataObj[props.type].data.chartRef.value?.getOption();
 	if (curOptions && Array.isArray(curOptions.series)) {
 		curOptions.series = curOptions.series.filter(item => item.name !== label);
@@ -241,6 +187,8 @@ watch(
 		if (value) {
 			nextTick(() => {
 				initChartOptions();
+				// 同步选中值到图表内部状态
+				chartDataObj[props.type].data.chart.selectValue = selectValue.value;
 				const key = chartDataObj[props.type].key;
 				chartDataObj[props.type].data.chart.initChart(initDataStore.list, key);
 			});

@@ -12,7 +12,7 @@ import { message } from 'ant-design-vue';
 import { RadarOption } from 'echarts/types/dist/shared';
 import { GitHubItem } from './use-github';
 
-export default function (): RadarChartType {
+export default function (options?: { onRemove?: (name: string) => void }): RadarChartType {
 	const githubStore = useGithubStore();
 
 	const chartRef = shallowRef<EChartsType>();
@@ -21,8 +21,49 @@ export default function (): RadarChartType {
 		selectValue: [],
 		initChart,
 		resizeChart,
-		addRadarData
+		addRadarData,
+		updateFromIds // 添加新方法
 	});
+
+	/**
+	 * @description 根据ID列表同步雷达图选中项
+	 * @param ids 项目ID列表
+	 * @param sourceList 数据源列表 (from initDataStore)
+	 */
+	function updateFromIds(ids: number[], sourceList: any[]) {
+		if (!ids || !sourceList) return;
+
+		// 1. 清空当前选中
+		chart.selectValue = [];
+		const curOptions = chartRef.value?.getOption();
+		if (curOptions && Array.isArray(curOptions.series)) {
+			curOptions.series[0].data = [];
+		}
+
+		// 2. 遍历ID，找到对应的项目数据并添加
+		ids.forEach(id => {
+			const item = sourceList.find((p: any) => p.project_id === id);
+			// 确保有 item 且有雷达图所需的数据字段
+			if (item && item.influence && item.response) {
+				chart.selectValue.push(item);
+				const obj = {
+					value: [+item.influence, +item.response, +item.activity, +item.trend, +item.github],
+					name: item.name,
+					areaStyle: { opacity: 0.2 }
+				};
+				if (curOptions && Array.isArray(curOptions.series)) {
+					curOptions.series[0].data.push(obj);
+				}
+			}
+		});
+
+		// 3. 重新计算最大值并渲染
+		if (curOptions) {
+			calcMax();
+			(curOptions.radar as any)[0].indicator = indicator.value;
+			chartRef.value?.setOption(curOptions, true); // true for notMerge to clear old data
+		}
+	}
 
 	const indicator = ref<RadarOption['indicator']>([
 		{ name: 'Influence', max: 120 },
@@ -206,6 +247,13 @@ export default function (): RadarChartType {
 				chartRef.value.on('showTip', () => {
 					document.querySelector('#radar-remove')?.addEventListener('click', e => {
 						const name = (e.target as HTMLDivElement).dataset.id;
+
+						// 如果提供了 onRemove 回调，则委托给父组件处理（用于联动）
+						if (options?.onRemove && name) {
+							options.onRemove(name);
+							return;
+						}
+
 						const curOptions = chartRef.value?.getOption();
 						if (curOptions && Array.isArray(curOptions.series)) {
 							const index = chart.selectValue.findIndex(item => item.name === (name as string));

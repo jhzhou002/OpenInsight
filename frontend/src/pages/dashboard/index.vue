@@ -50,7 +50,7 @@
 													<template #title>
 														<span>项目名：{{ item.name }}</span>
 													</template>
-													<div class="virtual-list-item" @click="radarFirst.chart.addRadarData(item.name)">
+													<div class="virtual-list-item" @click="handleListClick(item)">
 														<span class="virtual-list-item-col">{{ item.name }}</span>
 														<span class="virtual-list-item-col">{{ item.influence }}</span>
 														<span class="virtual-list-item-col">{{ item.trend }}</span>
@@ -97,6 +97,7 @@
 		v-model:visible="chartModalData.visible"
 		:type="chartModalData.type"
 		:defaultValue="chartModalData.selectValue"
+		@update:selectValue="handleModalSelectUpdate"
 	/>
 </template>
 
@@ -134,16 +135,85 @@ import { titleList, leftRightCol, centerCol } from './config';
 import { getInit, getOptions } from './service';
 
 const chartModalData = useChartModal();
-const preiChart = useReviewEfficient({ showHandler: chartModalData.changeVisible, type: 1 });
-const openRankChart = useOpenRank({ showHandler: chartModalData.changeVisible, type: 2 });
-const deverChart = useOpenRank({ showHandler: chartModalData.changeVisible, type: 3 });
-const attentChart = useOpenRank({ showHandler: chartModalData.changeVisible, type: 4 });
-const projectChart = useOpenRank({ showHandler: chartModalData.changeVisible, type: 5 });
+const linkedSelectedProjects = ref<number[]>([38, 41, 68]); // 共享的选中项目
+const linkedTypes = [1, 3, 4, 5]; // 需要联动的图表类型 (PREI, Developer Activity, Attention, Project Activity)
+
+// 包装 changeVisible 以实现联动逻辑
+const showHandlerWrapper = (originalHandler: any) => {
+	return (visible: boolean, type: number, selectValue: any) => {
+		// 如果是联动类型的图表，使用共享的 selectedProjects
+		if (linkedTypes.includes(type)) {
+			originalHandler(visible, type, linkedSelectedProjects.value);
+		} else {
+			originalHandler(visible, type, selectValue);
+		}
+	};
+};
+
+const handleModalSelectUpdate = (newVal: number[]) => {
+	// 如果当前打开的弹窗是联动类型的，更新共享状态
+	if (linkedTypes.includes(chartModalData.type)) {
+		linkedSelectedProjects.value = newVal;
+	}
+};
+
+const preiChart = useReviewEfficient({ showHandler: showHandlerWrapper(chartModalData.changeVisible), type: 1 });
+const openRankChart = useOpenRank({ showHandler: showHandlerWrapper(chartModalData.changeVisible), type: 2 });
+const deverChart = useOpenRank({ showHandler: showHandlerWrapper(chartModalData.changeVisible), type: 3 });
+const attentChart = useOpenRank({ showHandler: showHandlerWrapper(chartModalData.changeVisible), type: 4 });
+const projectChart = useOpenRank({ showHandler: showHandlerWrapper(chartModalData.changeVisible), type: 5 });
 const github = useGithub();
-const radarFirst = useRadar();
+const radarFirst = useRadar({
+	onRemove: (name: string) => {
+		const project = initDataStore.list.find((p: any) => p.name === name);
+		if (project) {
+			linkedSelectedProjects.value = linkedSelectedProjects.value.filter(id => id !== project.project_id);
+		}
+	}
+});
 
 const optionStore = useOptionStore();
 const initDataStore = useInitData();
+
+// 监听联动选中值的变化，更新首页的小图表
+import { watch } from 'vue';
+import { message } from 'ant-design-vue';
+
+// 处理列表点击联动
+const handleListClick = async (item: any) => {
+	// 如果已经选中了，就不重复添加
+	if (linkedSelectedProjects.value.includes(item.project_id)) {
+		return message.warning('该项目已在图表中');
+	}
+	if (linkedSelectedProjects.value.length >= 5) {
+		return message.warning('最多只能选择5个项目');
+	}
+
+	// 1. 确保拥有完整数据 (传入 item existing data 以复用雷达评分)
+	await initDataStore.fetchFullProjectData(item.project_id, item.name, item);
+
+	// 2. 更新共享选中状态 -> 触发 watcher
+	linkedSelectedProjects.value = [...linkedSelectedProjects.value, item.project_id];
+};
+
+watch(linkedSelectedProjects, (newVal) => {
+	// 更新图表内部选中的值
+	preiChart.chart.selectValue = newVal;
+	deverChart.chart.selectValue = newVal;
+	attentChart.chart.selectValue = newVal;
+	projectChart.chart.selectValue = newVal;
+
+	// 重新渲染图表
+	if (initDataStore.list && initDataStore.list.length) {
+		preiChart.chart.initChart(initDataStore.list); // PREI不需要传type
+		deverChart.chart.initChart(initDataStore.list, 'developer_activity');
+		attentChart.chart.initChart(initDataStore.list, 'project_attention');
+		projectChart.chart.initChart(initDataStore.list, 'project_activity');
+		
+		// 同步雷达图
+		radarFirst.chart.updateFromIds(newVal, initDataStore.list);
+	}
+});
 
 /**
  * @description 处理全部图表的缩放
