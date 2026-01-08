@@ -5,7 +5,7 @@
 				<!-- 左侧：Logo + 平台名称 -->
 				<div class="nav-left">
 					<div class="nav-logo">
-						<img src="https://qiniu.aihubzone.cn/openinsight_logo.jpg" alt="OpenInsight" class="logo-icon" />
+						<img src="/logo.png" alt="OpenInsight" class="logo-icon" />
 						<h1 class="platform-name">OpenInsight</h1>
 					</div>
 				</div>
@@ -125,8 +125,8 @@ onBeforeUnmount(() => {
 	gap: 12px;
 
 	.logo-icon {
-		width: 32px;
-		height: 32px;
+		width: 40px;
+		height: 40px;
 		object-fit: contain;
 		filter: drop-shadow(0 0 8px rgba(56, 189, 248, 0.5));
 	}
