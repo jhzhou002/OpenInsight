@@ -30,6 +30,10 @@
 						<FileTextOutlined />
 						<span>日志查看</span>
 					</a-menu-item>
+					<a-menu-item key="llm">
+						<RobotOutlined />
+						<span>LLM配置</span>
+					</a-menu-item>
 				</a-menu>
 			</a-layout-sider>
 
@@ -67,6 +71,9 @@
 
 						<!-- 日志查看 -->
 						<LogViewer v-if="currentView === 'logs'" />
+
+						<!-- LLM配置 -->
+						<LLMConfigManager v-if="currentView === 'llm'" />
 					</div>
 				</a-layout-content>
 			</a-layout>
@@ -85,13 +92,15 @@ import {
 	SettingOutlined,
 	ClockCircleOutlined,
 	FileTextOutlined,
-	LogoutOutlined
+	LogoutOutlined,
+	RobotOutlined
 } from '@ant-design/icons-vue';
 
 import TaskManager from './components/TaskManager.vue';
 import ConfigManager from './components/ConfigManager.vue';
 import ScheduleManager from './components/ScheduleManager.vue';
 import LogViewer from './components/LogViewer.vue';
+import LLMConfigManager from './components/LLMConfigManager.vue';
 
 const router = useRouter();
 const collapsed = ref(false);

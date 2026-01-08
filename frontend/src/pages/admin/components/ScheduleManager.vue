@@ -67,34 +67,86 @@
 					<a-input v-model:value="scheduleForm.schedule_name" placeholder="例如: 每月数据更新" />
 				</a-form-item>
 
-				<a-form-item label="Cron表达式" required>
-					<a-input
-						v-model:value="scheduleForm.cron_expression"
-						placeholder="例如: 0 2 1 * * (每月1号凌晨2点)"
-					/>
-					<div class="form-hint">
-						格式: 秒 分 时 日 月 星期<br />
-						示例:<br />
-						- 每月1号凌晨2点: 0 2 1 * *<br />
-						- 每天凌晨3点: 0 3 * * *<br />
-						- 每周日凌晨1点: 0 1 * * 0
-					</div>
-				</a-form-item>
+				<a-form-item label="定时计划" required>
+					<a-space direction="vertical" style="width: 100%" size="large">
+						<!-- 常用时间选择 -->
+						<div>
+							<label style="display: block; margin-bottom: 8px; font-weight: 500">
+								常用时间计划
+							</label>
+							<a-radio-group
+								v-model:value="cronPreset"
+								@change="handleCronPresetChange"
+								style="width: 100%"
+							>
+								<a-space direction="vertical" style="width: 100%">
+									<!-- 每月 -->
+									<div class="cron-category">
+										<div class="category-title">📅 每月执行</div>
+										<a-radio value="0 2 1 * *">每月 1 号凌晨 2 点</a-radio>
+										<a-radio value="0 0 1 * *">每月 1 号凌晨 0 点</a-radio>
+										<a-radio value="0 3 15 * *">每月 15 号凌晨 3 点</a-radio>
+									</div>
 
-				<a-form-item label="快捷选择">
-					<a-select
-						v-model:value="quickCron"
-						placeholder="选择常用时间"
-						style="width: 100%"
-						@change="handleQuickCronSelect"
-					>
-						<a-select-option value="">自定义</a-select-option>
-						<a-select-option value="0 2 1 * *">每月1号凌晨2点</a-select-option>
-						<a-select-option value="0 3 * * *">每天凌晨3点</a-select-option>
-						<a-select-option value="0 1 * * 0">每周日凌晨1点</a-select-option>
-						<a-select-option value="0 0 * * *">每天凌晨0点</a-select-option>
-						<a-select-option value="0 */6 * * *">每6小时</a-select-option>
-					</a-select>
+									<!-- 每周 -->
+									<div class="cron-category">
+										<div class="category-title">📆 每周执行</div>
+										<a-radio value="0 1 * * 0">每周日凌晨 1 点</a-radio>
+										<a-radio value="0 2 * * 1">每周一凌晨 2 点</a-radio>
+										<a-radio value="0 3 * * 6">每周六凌晨 3 点</a-radio>
+									</div>
+
+									<!-- 每天 -->
+									<div class="cron-category">
+										<div class="category-title">🌞 每天执行</div>
+										<a-radio value="0 0 * * *">每天凌晨 0 点</a-radio>
+										<a-radio value="0 2 * * *">每天凌晨 2 点</a-radio>
+										<a-radio value="0 3 * * *">每天凌晨 3 点</a-radio>
+									</div>
+
+									<!-- 每隔几小时 -->
+									<div class="cron-category">
+										<div class="category-title">⏰ 定时间间隔</div>
+										<a-radio value="0 */6 * * *">每 6 小时</a-radio>
+										<a-radio value="0 */12 * * *">每 12 小时</a-radio>
+										<a-radio value="*/30 * * * *">每 30 分钟</a-radio>
+									</div>
+
+									<!-- 自定义 -->
+									<a-radio value="custom">自定义 Cron 表达式</a-radio>
+								</a-space>
+							</a-radio-group>
+						</div>
+
+						<!-- 自定义Cron表达式输入 -->
+						<div v-if="cronPreset === 'custom'">
+							<a-input
+								v-model:value="scheduleForm.cron_expression"
+								placeholder="输入 Cron 表达式，例如: 0 2 1 * *"
+							/>
+							<div class="cron-help">
+								<a-alert
+									message="Cron 表达式格式"
+									description="格式：分 时 日 月 星期\n\n示例：\n• 0 2 1 * * = 每月 1 号凌晨 2 点\n• 0 3 * * * = 每天凌晨 3 点\n• 0 1 * * 0 = 每周日凌晨 1 点\n• 0 */6 * * * = 每 6 小时"
+									type="info"
+									style="margin-top: 12px"
+								/>
+							</div>
+						</div>
+
+						<!-- 当前设置预览 -->
+						<a-alert
+							:message="getCronDescription()"
+							type="success"
+							show-icon
+						>
+							<template #description>
+								Cron 表达式：<code style="background: #f0f0f0; padding: 2px 6px; border-radius: 3px">{{ scheduleForm.cron_expression }}</code>
+								<br />
+								下次执行时间：<strong>{{ getNextRunTime(scheduleForm.cron_expression) }}</strong>
+							</template>
+						</a-alert>
+					</a-space>
 				</a-form-item>
 
 				<a-form-item label="任务配置">
@@ -135,6 +187,7 @@ const showCreateModal = ref(false);
 const isEditing = ref(false);
 const schedules = ref([]);
 const quickCron = ref('');
+const cronPreset = ref('0 2 1 * *'); // 新增：预设选择
 
 const scheduleForm = reactive({
 	id: undefined as number | undefined,
@@ -341,6 +394,32 @@ const handleQuickCronSelect = (value: string) => {
 	}
 };
 
+// 处理预设选择变化
+const handleCronPresetChange = () => {
+	if (cronPreset.value !== 'custom') {
+		scheduleForm.cron_expression = cronPreset.value;
+	}
+};
+
+// 获取Cron描述
+const getCronDescription = () => {
+	const descriptions: Record<string, string> = {
+		'0 2 1 * *': '每月 1 号凌晨 2 点执行',
+		'0 0 1 * *': '每月 1 号凌晨 0 点执行',
+		'0 3 15 * *': '每月 15 号凌晨 3 点执行',
+		'0 1 * * 0': '每周日凌晨 1 点执行',
+		'0 2 * * 1': '每周一凌晨 2 点执行',
+		'0 3 * * 6': '每周六凌晨 3 点执行',
+		'0 0 * * *': '每天凌晨 0 点执行',
+		'0 2 * * *': '每天凌晨 2 点执行',
+		'0 3 * * *': '每天凌晨 3 点执行',
+		'0 */6 * * *': '每 6 小时执行一次',
+		'0 */12 * * *': '每 12 小时执行一次',
+		'*/30 * * * *': '每 30 分钟执行一次'
+	};
+	return descriptions[scheduleForm.cron_expression] || '自定义定时任务';
+};
+
 const handleCreateClick = () => {
 	console.log('Create button clicked');
 	showCreateModal.value = true;
@@ -355,6 +434,7 @@ const resetForm = () => {
 	scheduleForm.task_config = { time_start: '2021-01', time_end: '2025-10' };
 	scheduleForm.is_enabled = true;
 	quickCron.value = '';
+	cronPreset.value = '0 2 1 * *'; // 重置预设
 };
 
 onMounted(() => {
@@ -387,6 +467,32 @@ onMounted(() => {
 		color: #999;
 		margin-top: 4px;
 		line-height: 1.6;
+	}
+
+	.cron-category {
+		padding: 12px;
+		background: #f9f9f9;
+		border-radius: 6px;
+		margin-bottom: 8px;
+
+		.category-title {
+			font-weight: 600;
+			font-size: 13px;
+			color: #333;
+			margin-bottom: 8px;
+		}
+
+		:deep(.ant-radio-wrapper) {
+			display: block;
+			margin: 6px 0;
+			padding: 4px 0;
+		}
+	}
+
+	.cron-help {
+		:deep(.ant-alert-description) {
+			white-space: pre-line;
+		}
 	}
 }
 

@@ -1,12 +1,6 @@
 const db = require("../db/index");
-const OpenAI = require("openai");
+const llmService = require("../services/llmService");
 const dayjs = require("dayjs");
-
-// 初始化通义千问客户端
-const client = new OpenAI({
-  apiKey: "sk-829bda5565e04302b9bd5a088f0247c3",
-  baseURL: "https://dashscope.aliyuncs.com/compatible-mode/v1",
-});
 
 /**
  * 过滤时间序列数据,只保留指定时间范围内的数据
@@ -322,15 +316,12 @@ ${JSON.stringify(projectsSummary, null, 2)}
     res.setHeader("Cache-Control", "no-cache");
     res.setHeader("Connection", "keep-alive");
 
-    // 调用通义千问API (流式输出)
-    const stream = await client.chat.completions.create({
-      model: "qwen3-max",
-      messages: [
-        { role: "system", content: systemPrompt },
-        { role: "user", content: userPrompt },
-      ],
-      stream: true,
-      temperature: 0.7,
+    // 调用LLM API (流式输出)
+    const stream = await llmService.streamChat([
+      { role: "system", content: systemPrompt },
+      { role: "user", content: userPrompt },
+    ], {
+      temperature: 0.7
     });
 
     // 流式返回数据

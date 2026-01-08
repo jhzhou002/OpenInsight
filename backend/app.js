@@ -32,6 +32,8 @@ const homeRouter = require("./router/home");
 app.use("/api/home", homeRouter);
 const etlRouter = require("./router/etl");
 app.use("/api/etl", etlRouter);
+const llmRouter = require("./router/llm");
+app.use("/api/llm", llmRouter);
 
 // 支持History模式路由，所有非API请求返回index.html
 app.get('*', (req, res) => {

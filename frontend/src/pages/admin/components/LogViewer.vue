@@ -155,6 +155,12 @@ const loadTasks = async () => {
 
 		if (response.data.code === 200) {
 			tasks.value = response.data.data.tasks;
+			
+			// 自动选择最新任务（第一个）
+			if (tasks.value.length > 0 && !selectedTaskId.value) {
+				selectedTaskId.value = tasks.value[0].id;
+				await loadLogs();
+			}
 		}
 	} catch (error) {
 		console.error('Load tasks error:', error);
