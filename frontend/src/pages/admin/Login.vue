@@ -45,6 +45,8 @@ import { useRouter } from 'vue-router';
 import { message } from 'ant-design-vue';
 import { UserOutlined, LockOutlined } from '@ant-design/icons-vue';
 
+import service from '@/service/service';
+
 const router = useRouter();
 const loading = ref(false);
 
@@ -57,10 +59,15 @@ const handleLogin = async () => {
 	try {
 		loading.value = true;
 
-		// 简单的本地验证（后续可接入真实的认证API）
-		if (loginForm.value.username === 'admin' && loginForm.value.password === 'admin123') {
+		// 调用后端登录接口
+		const res: any = await service.post('/common/login', {
+			user_name: loginForm.value.username,
+			pass_word: loginForm.value.password
+		});
+
+		if (res.code === 200) {
 			// 保存登录状态
-			localStorage.setItem('admin_token', 'admin_logged_in');
+			localStorage.setItem('admin_token', res.data.token);
 			localStorage.setItem('admin_username', loginForm.value.username);
 
 			message.success('登录成功');
@@ -70,10 +77,11 @@ const handleLogin = async () => {
 				router.push('/admin/dashboard');
 			}, 500);
 		} else {
-			message.error('用户名或密码错误');
+			message.error(res.msg || '登录失败');
 		}
-	} catch (error) {
-		message.error('登录失败');
+	} catch (error: any) {
+		// 拦截器已经处理了大部分错误提示，这里只需要捕获防止崩溃
+		// message.error('登录失败');
 		console.error('Login error:', error);
 	} finally {
 		loading.value = false;

@@ -7,7 +7,7 @@
 					<ReloadOutlined />
 					刷新
 				</a-button>
-				<a-button type="primary" @click="showCreateModal = true">
+				<a-button type="primary" @click="handleCreateClick">
 					<PlusOutlined />
 					创建定时任务
 				</a-button>
@@ -56,7 +56,7 @@
 
 		<!-- 创建/编辑定时任务弹窗 -->
 		<a-modal
-			v-model:open="showCreateModal"
+			v-model:visible="showCreateModal"
 			:title="isEditing ? '编辑定时任务' : '创建定时任务'"
 			@ok="handleSaveSchedule"
 			:confirm-loading="saving"
@@ -339,6 +339,12 @@ const handleQuickCronSelect = (value: string) => {
 	if (value) {
 		scheduleForm.cron_expression = value;
 	}
+};
+
+const handleCreateClick = () => {
+	console.log('Create button clicked');
+	showCreateModal.value = true;
+	console.log('showCreateModal set to:', showCreateModal.value);
 };
 
 const resetForm = () => {

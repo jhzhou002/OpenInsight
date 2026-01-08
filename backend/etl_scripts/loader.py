@@ -28,42 +28,81 @@ class DataLoader:
 
     def truncate_and_load(self, df: pd.DataFrame, baseline: Dict):
         """
-        清空并加载数据（PDF步骤7）
+        Clear and load data (Step 7)
+        Includes backup mechanism for rollback support.
 
         Args:
-            df: 包含所有计算结果的DataFrame
-            baseline: baseline配置字典
+            df: DataFrame containing all calculation results
+            baseline: baseline configuration dictionary
         """
-        print(f"\n [Step 7] 加载数据到数据库...")
+        print(f"\n [Step 7] Loading data into database...")
 
         try:
             self.connect()
             cursor = self.connection.cursor()
 
-            # 1. 清空github表
-            print(f"    清空github表...")
+            # 1. Backup github table
+            print(f"    Backing up github table...")
+            cursor.execute("DROP TABLE IF EXISTS github_backup")
+            cursor.execute("CREATE TABLE github_backup LIKE github")
+            cursor.execute("INSERT INTO github_backup SELECT * FROM github")
+
+            # 2. Clear github table
+            print(f"    Clearing github table...")
             cursor.execute("TRUNCATE TABLE github")
 
-            # 2. 更新baseline配置
-            print(f"    更新baseline配置...")
+            # 3. Update baseline config
+            print(f"    Updating baseline config...")
             cursor.execute(
                 "UPDATE baseline_config SET baseline = %s WHERE id = 1",
                 (json.dumps(baseline),)
             )
 
-            # 3. 批量插入数据
-            print(f"    批量插入项目数据...")
+            # 4. Batch insert data
+            print(f"    Batch inserting project data...")
             self._batch_insert(cursor, df)
 
-            # 4. 提交事务
+            # 5. Commit transaction
             self.connection.commit()
-            print(f"     数据加载完成")
+            print(f"     Data loading completed")
 
         except Exception as e:
             if self.connection:
                 self.connection.rollback()
-            print(f"     加载失败: {e}")
+            print(f"     Loading failed: {e}")
             raise
+        finally:
+            self.close()
+
+    def rollback(self):
+        """
+        Rollback data from backup table
+        """
+        print(f"\n [Rollback] Restoring data from backup...")
+        try:
+            self.connect()
+            cursor = self.connection.cursor()
+
+            # Check if backup exists
+            cursor.execute("SHOW TABLES LIKE 'github_backup'")
+            if not cursor.fetchone():
+                print("    No backup found!")
+                return False
+
+            # Restore data
+            print(f"    Restoring data...")
+            cursor.execute("TRUNCATE TABLE github")
+            cursor.execute("INSERT INTO github SELECT * FROM github_backup")
+            
+            self.connection.commit()
+            print(f"    Rollback completed successfully")
+            return True
+
+        except Exception as e:
+            if self.connection:
+                self.connection.rollback()
+            print(f"    Rollback failed: {e}")
+            return False
         finally:
             self.close()
 

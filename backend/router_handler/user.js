@@ -7,8 +7,8 @@ exports.regUser = (req, res) => {
     return res.cc("用户名或密码不能为空");
   }
 
-  user_name = db.escape(user_name)
-  pass_word = db.escape(pass_word)
+  // user_name = db.escape(user_name)
+  // pass_word = db.escape(pass_word)
 
   // 检查用户名是否被占用
   const sqlUserName = "select * from user_info where user_name = ?";

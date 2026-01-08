@@ -35,10 +35,11 @@
 				<div class="metric-card">
 					<h3>数据处理流程</h3>
 					<ol class="numbered-list">
-						<li>对四个维度的原始项目级指标做 Min–Max 归一化。</li>
-						<li>对归一化后的四个维度做平方根平滑。</li>
-						<li>按权重计算综合得分 Github_raw。</li>
-						<li>最终指数映射到 60-100 分区间: <code>GitHub_Index = 60 + 40 * MinMaxNorm(Github_raw)</code></li>
+						<li>对四个维度的原始项目级指标做 Min–Max 归一化（项目间 0~1 统一尺度）。</li>
+						<li>对归一化后的四个维度做平方根平滑（降低极端值影响）。</li>
+						<li>使用平滑后的四个维度按权重计算综合得分 Github_raw（理论上在 0~1 内，但实际区间较窄）。</li>
+						<li>在所有项目上对 Github_raw 再做一次 Min–Max 归一化，得到 Github_norm，并做功效系数：<code>GitHub_Index = 60 + 40 × Github_norm</code>（最终范围 60~100）。</li>
+						<li>为了展示效果，对四个维度的平滑结果分别再做一次 Min–Max 归一化，并做功效系数：<code>Dimension_Index = 60 + 40 × Min–Max(平滑维度值)</code>，仅用于展示，不影响第 3–4 步的综合得分计算逻辑。</li>
 					</ol>
 				</div>
 			</div>

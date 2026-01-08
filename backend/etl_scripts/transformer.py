@@ -16,31 +16,31 @@ class DataTransformer:
 
     def align_and_fill(self, trimmed_data: Dict[str, Dict]) -> pd.DataFrame:
         """
-        时间对齐和缺失值处理（PDF步骤4）
+        Time alignment and missing value handling (PDF Step 4)
 
-        缺失值处理策略：
-        1. 如果项目2021-01之后才发布，前面月份用0填充
-        2. 如果2021-01有数据，中间缺失月份用前一个月数据填充
+        Missing value strategy:
+        1. If project not published before 2021-01, fill with 0
+        2. If data exists in 2021-01, fill missing months with previous month data
 
         Args:
-            trimmed_data: 裁剪后的数据
+            trimmed_data: Trimmed data
 
         Returns:
-            长表格式的DataFrame
+            Long format DataFrame
             columns: ['company', 'project', 'metric', 'date', 'value']
         """
-        print(f"\n [Step 4] 数据对齐与缺失值处理...")
+        print(f"\n [Step 4] Aligning data and filling missing values...")
 
         rows = []
 
-        for proj_key, metrics in tqdm(trimmed_data.items(), desc="    处理项目"):
+        for proj_key, metrics in tqdm(trimmed_data.items(), desc="    Processing"):
             company, project = proj_key.split('/')
 
             for metric_name, metric_data in metrics.items():
-                # 对齐时间轴
+                # Align time series
                 aligned = self._align_time_series(metric_data, metric_name)
 
-                # 转换为行记录
+                # Convert to row record
                 for date, value in aligned.items():
                     rows.append({
                         'company': company,
@@ -51,7 +51,7 @@ class DataTransformer:
                     })
 
         df = pd.DataFrame(rows)
-        print(f"     对齐完成，共 {len(df)} 条记录")
+        print(f"     Alignment completed, total {len(df)} records")
         return df
 
     def _align_time_series(self, data: Dict, metric_name: str) -> Dict:

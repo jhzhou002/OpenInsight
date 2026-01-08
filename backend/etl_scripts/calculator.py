@@ -16,19 +16,19 @@ class MetricsCalculator:
 
     def calculate_all_metrics(self, df: pd.DataFrame) -> Tuple[pd.DataFrame, Dict]:
         """
-        计算所有聚合指标（PDF步骤5）
+        Calculate all aggregate metrics (PDF Step 5)
 
         Args:
-            df: 长表格式的数据
+            df: Long format DataFrame
 
         Returns:
             (final_df, baseline)
-            - final_df: 包含所有计算结果的DataFrame
-            - baseline: baseline配置字典
+            - final_df: DataFrame containing all calculation results
+            - baseline: baseline configuration dictionary
         """
-        print(f"\n [Step 5] 计算聚合指标...")
+        print(f"\n [Step 5] Calculating aggregate metrics...")
 
-        # 转为宽表
+        # Convert to wide table
         df_wide = df.pivot_table(
             index=['company', 'project', 'date'],
             columns='metric',
@@ -36,32 +36,32 @@ class MetricsCalculator:
             aggfunc='first'
         ).reset_index()
 
-        print(f"    计算月度指标...")
-        # 5.1-5.4 月度指标
+        print(f"    Calculating monthly metrics...")
+        # 5.1-5.4 Monthly metrics
         df_wide = self._calculate_monthly_metrics(df_wide)
 
-        print(f"    计算GitHub指数...")
-        # 5.5 GitHub指数（项目级）
+        print(f"    Calculating GitHub index...")
+        # 5.5 GitHub Index (Project level)
         github_df, github_baseline = self._calculate_github_index(df_wide)
 
-        print(f"    计算PREI baseline...")
-        # 计算PREI baseline
+        print(f"    Calculating PREI baseline...")
+        # Calculate PREI baseline
         prei_baseline = self._calculate_prei_baseline(df_wide)
 
-        # 合并数据
+        # Merge data
         final_df = df_wide.merge(
             github_df,
             on=['company', 'project'],
             how='left'
         )
 
-        # 构建baseline
+        # Build baseline
         baseline = {
             'github_raw_baseline': github_baseline,
             'prei_raw_baseline': prei_baseline
         }
 
-        print(f"     指标计算完成")
+        print(f"     Metrics calculation completed")
         return final_df, baseline
 
     def _calculate_monthly_metrics(self, df: pd.DataFrame) -> pd.DataFrame:

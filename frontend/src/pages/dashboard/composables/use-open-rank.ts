@@ -6,7 +6,8 @@ import type { DateItem, LineChartType, MuSelectValueType, intervalMapType } from
 
 import { getHtmlFontPX, handleChartResize } from '@/utils/base';
 import ThemeColor from '@/themeColor';
-import { colorList, dateList } from '../config';
+import { colorList, dateList as defaultDateList } from '../config';
+import useOptionStore from '@/store/option';
 
 export default function (props?: {
 	showHandler?: (visible: boolean, type: number, selectValue: MuSelectValueType) => void;
@@ -14,6 +15,8 @@ export default function (props?: {
 }): LineChartType {
 	const chartRef = shallowRef<EChartsType>();
 	const container = ref<HTMLDivElement | undefined>();
+	const optionStore = useOptionStore();
+
 	const chart = reactive<LineChartType['chart']>({
 		selectValue: [38, 41, 68],
 		initChart,
@@ -157,6 +160,9 @@ export default function (props?: {
 	function initChart(nodes: PieSeriesOption['data'], type: keyof intervalMapType): any {
 		if (!container.value) return;
 		const openRankData: EChartsCoreOption[] = [];
+		// Use dateList from optionStore if available, otherwise fall back to default
+		const dateList = optionStore.dateList.length > 0 ? optionStore.dateList : defaultDateList;
+
 		nodes &&
 			nodes.forEach((item: any) => {
 				// 只显示selectValue中指定的项目ID

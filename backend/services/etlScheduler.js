@@ -4,7 +4,7 @@
  */
 const cron = require('node-cron');
 const db = require('../db/promise');
-const { executeETLTask } = require('../router_handler/etl_admin');
+const { executeETLTask } = require('./etlTaskService');
 
 // 存储所有活跃的定时任务
 const activeCronJobs = new Map(); // scheduleId -> cronJob

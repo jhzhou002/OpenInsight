@@ -28,12 +28,12 @@ class DataExtractor:
 
     def fetch_top_projects(self) -> List[Dict]:
         """
-        获取Top300项目信息（PDF步骤1）
+        Fetch Top300 projects info (PDF Step 1)
 
         Returns:
-            项目列表，每个项目包含 {repo_name, company, rank}
+            List of projects, each containing {repo_name, company, rank}
         """
-        print(f"\n[Step 1] 获取Top300项目信息...")
+        print(f"\n[Step 1] Fetching Top300 projects info...")
         print(f"    URL: {self.config.leaderboard_url}")
 
         try:
@@ -44,10 +44,10 @@ class DataExtractor:
             projects = []
             for entry in data.get('data', []):
                 item = entry.get('item', {})
-                repo_name = item.get('name', '')  # 格式: "company/project"
+                repo_name = item.get('name', '')  # Format: "company/project"
                 rank = entry.get('rank', 0)
 
-                # 从repo_name中拆分company和project
+                # Split company and project from repo_name
                 if repo_name and '/' in repo_name:
                     company, project = repo_name.split('/', 1)
                     projects.append({
@@ -56,19 +56,19 @@ class DataExtractor:
                         'rank': rank
                     })
 
-            print(f"     成功获取 {len(projects)} 个项目")
+            print(f"     Successfully fetched {len(projects)} projects")
             return projects
 
         except Exception as e:
-            print(f"     获取失败: {e}")
+            print(f"     Fetch failed: {e}")
             raise
 
     def fetch_all_metrics(self, projects: List[Dict]) -> Dict[str, Dict]:
         """
-        获取所有项目的指标数据（PDF步骤2）
+        Fetch metrics data for all projects (PDF Step 2)
 
         Args:
-            projects: 项目列表
+            projects: List of projects
 
         Returns:
             {
@@ -79,16 +79,16 @@ class DataExtractor:
                 }
             }
         """
-        print(f"\n[Step 2] 下载所有项目的指标数据...")
-        print(f"    指标数量: {len(self.config.METRICS)}")
-        print(f"    项目数量: {len(projects)}")
-        print(f"    并发数: {self.config.max_workers}")
+        print(f"\n[Step 2] Downloading metrics data for all projects...")
+        print(f"    Metrics count: {len(self.config.METRICS)}")
+        print(f"    Projects count: {len(projects)}")
+        print(f"    Concurrency: {self.config.max_workers}")
 
         all_data = {}
         total_tasks = len(projects) * len(self.config.METRICS)
 
         with ThreadPoolExecutor(max_workers=self.config.max_workers) as executor:
-            # 提交所有任务
+            # Submit all tasks
             future_to_task = {}
             for proj in projects:
                 company = proj['company']
@@ -103,8 +103,8 @@ class DataExtractor:
                     )
                     future_to_task[future] = (proj_key, metric)
 
-            # 使用tqdm显示进度
-            with tqdm(total=total_tasks, desc="    下载进度") as pbar:
+            # Use tqdm to show progress
+            with tqdm(total=total_tasks, desc="    Downloading") as pbar:
                 for future in as_completed(future_to_task):
                     proj_key, metric = future_to_task[future]
                     try:
@@ -114,7 +114,7 @@ class DataExtractor:
                         all_data[proj_key][metric] = None
                     pbar.update(1)
 
-        print(f"     数据下载完成")
+        print(f"     Download completed")
         return all_data
 
     def _fetch_single_metric(self, company: str, project: str, metric: str) -> Dict:
@@ -140,22 +140,22 @@ class DataExtractor:
 
     def trim_data(self, all_data: Dict[str, Dict]) -> Dict[str, Dict]:
         """
-        裁剪数据（PDF步骤3）
-        - 分类数据：只保留YYYY-MM: value
-        - 时间数据：只保留avg字段的YYYY-MM: value
+        Trim data (PDF Step 3)
+        - Category data: keep only YYYY-MM: value
+        - Time data: keep only 'avg' field YYYY-MM: value
 
         Args:
-            all_data: 原始数据
+            all_data: Raw data
 
         Returns:
-            裁剪后的数据
+            Trimmed data
         """
-        print(f"\n[Step 3] 裁剪数据...")
-        print(f"    时间范围: {self.config.time_start} ~ {self.config.time_end}")
+        print(f"\n[Step 3] Trimming data...")
+        print(f"    Time range: {self.config.time_start} ~ {self.config.time_end}")
 
         trimmed_data = {}
 
-        for proj_key, metrics in tqdm(all_data.items(), desc="    处理项目"):
+        for proj_key, metrics in tqdm(all_data.items(), desc="    Processing"):
             trimmed_data[proj_key] = {}
 
             for metric_name, metric_data in metrics.items():
@@ -163,15 +163,15 @@ class DataExtractor:
                     trimmed_data[proj_key][metric_name] = {}
                     continue
 
-                # 分类指标
+                # Category metrics
                 if metric_name in self.config.CATEGORY_METRICS:
                     trimmed_data[proj_key][metric_name] = self._trim_category(metric_data)
 
-                # 时间指标
+                # Time metrics
                 elif metric_name in self.config.TIME_METRICS:
                     trimmed_data[proj_key][metric_name] = self._trim_time(metric_data)
 
-        print(f"     裁剪完成")
+        print(f"     Trimming completed")
         return trimmed_data
 
     def _trim_category(self, data: Dict) -> Dict:

@@ -73,69 +73,74 @@ def main(time_start: str = '2021-01', time_end: str = '2025-10', task_id: int = 
     """
     start_time = time.time()
 
-    log_json('info', 'START', f'ETL任务开始', {'task_id': task_id, 'time_range': f'{time_start} ~ {time_end}'})
+    log_json('info', 'START', f'ETL Task Started', {'task_id': task_id, 'time_range': f'{time_start} ~ {time_end}'})
 
     try:
-        # 初始化配置
+        # Initialize Config
         config = ETLConfig(time_start, time_end)
-        log_json('info', 'CONFIG', '配置初始化完成', {'time_range_months': len(config.time_range)})
+        log_json('info', 'CONFIG', 'Configuration initialized', {'time_range_months': len(config.time_range)})
 
-        # Step 1: 获取Top300项目信息
-        log_json('info', 'STEP_1', '开始获取Top300项目信息')
+        # Step 1: Fetch Top300 Projects
+        log_json('info', 'STEP_1', 'Fetching Top300 projects info')
         extractor = DataExtractor(config)
         projects = extractor.fetch_top_projects()
 
         if not projects:
-            raise Exception("未获取到项目列表")
+            raise Exception("No projects found")
 
-        log_json('info', 'STEP_1', f'成功获取 {len(projects)} 个项目', {'count': len(projects)})
-        log_progress('FETCH_PROJECTS', len(projects), len(projects), f'已获取{len(projects)}个项目')
+        log_json('info', 'STEP_1', f'Successfully fetched {len(projects)} projects', {'count': len(projects)})
+        log_progress('STEP_1', 1, 6, f'Step 1/6: Fetched {len(projects)} projects')
 
-        # Step 2: 下载所有指标数据
-        log_json('info', 'STEP_2', f'开始下载 {len(projects)} 个项目的指标数据')
+        # Step 2: Download all metrics
+        log_json('info', 'STEP_2', f'Downloading metrics for {len(projects)} projects')
         all_data = extractor.fetch_all_metrics(projects)
-        log_json('info', 'STEP_2', '指标数据下载完成')
+        log_json('info', 'STEP_2', 'Metrics download completed')
+        log_progress('STEP_2', 2, 6, 'Step 2/6: Download completed')
 
-        # Step 3: 裁剪数据
-        log_json('info', 'STEP_3', '开始裁剪数据')
+        # Step 3: Trim data
+        log_json('info', 'STEP_3', 'Trimming data')
         trimmed_data = extractor.trim_data(all_data)
-        log_json('info', 'STEP_3', '数据裁剪完成')
+        log_json('info', 'STEP_3', 'Data trimming completed')
+        log_progress('STEP_3', 3, 6, 'Step 3/6: Trimming completed')
 
-        # Step 4: 数据对齐与缺失值处理
-        log_json('info', 'STEP_4', '开始数据对齐与缺失值处理')
+        # Step 4: Align and fill
+        log_json('info', 'STEP_4', 'Aligning data and filling missing values')
         transformer = DataTransformer(config)
         df_long = transformer.align_and_fill(trimmed_data)
-        log_json('info', 'STEP_4', f'数据对齐完成，共 {len(df_long)} 条记录', {'records': len(df_long)})
+        log_json('info', 'STEP_4', f'Data alignment completed, total {len(df_long)} records', {'records': len(df_long)})
+        log_progress('STEP_4', 4, 6, f'Step 4/6: Aligned {len(df_long)} records')
 
-        # Step 5: 计算聚合指标 & Step 6: 生成baseline
-        log_json('info', 'STEP_5', '开始计算聚合指标')
+        # Step 5 & 6: Calculate Metrics & Baseline
+        log_json('info', 'STEP_5', 'Calculating aggregate metrics')
         calculator = MetricsCalculator(config)
         df_final, baseline = calculator.calculate_all_metrics(df_long)
-        log_json('info', 'STEP_5', '聚合指标计算完成，baseline已生成')
+        log_json('info', 'STEP_5', 'Metrics calculation completed, baseline generated')
+        log_progress('STEP_5', 5, 6, 'Step 5/6: Metrics calculated')
 
-        # Step 7: 加载到数据库
-        log_json('info', 'STEP_7', '开始加载数据到数据库')
+        # Step 6: Load to Database
+        log_json('info', 'STEP_6', 'Loading data into database')
         loader = DataLoader(config)
         loader.truncate_and_load(df_final, baseline)
-        log_json('info', 'STEP_7', '数据加载完成')
+        log_json('info', 'STEP_6', 'Data loading completed')
+        log_progress('STEP_6', 6, 6, 'Step 6/6: Data loaded to database')
 
-        # 统计信息
+        # Stats
         elapsed_time = time.time() - start_time
         minutes = int(elapsed_time // 60)
         seconds = int(elapsed_time % 60)
 
         result = {
             'success': True,
-            'message': 'ETL处理成功',
+            'message': 'ETL Processing Success',
             'data': {
                 'projects_count': len(projects),
                 'records_count': len(df_final),
                 'elapsed_time_seconds': int(elapsed_time),
-                'elapsed_time': f"{minutes}分{seconds}秒"
+                'elapsed_time': f"{minutes}m {seconds}s"
             }
         }
 
-        log_json('info', 'SUCCESS', 'ETL任务成功完成', result['data'])
+        log_json('info', 'SUCCESS', 'ETL task completed successfully', result['data'])
         return result
 
     except Exception as e:
@@ -148,12 +153,12 @@ def main(time_start: str = '2021-01', time_end: str = '2025-10', task_id: int = 
 
         result = {
             'success': False,
-            'message': f'ETL处理失败: {str(e)}',
+            'message': f'ETL Failed: {str(e)}',
             'error': str(e),
             'trace': error_trace
         }
 
-        log_json('error', 'FAILED', f'ETL任务失败: {str(e)}', {
+        log_json('error', 'FAILED', f'ETL Task Failed: {str(e)}', {
             'error': str(e),
             'elapsed_time_seconds': int(elapsed_time)
         })

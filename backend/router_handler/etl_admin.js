@@ -5,6 +5,9 @@
 const db = require('../db/promise');
 const { spawn } = require('child_process');
 const path = require('path');
+const sseService = require('../services/sseService');
+const etlTaskService = require('../services/etlTaskService');
+const etlScheduler = require('../services/etlScheduler');
 
 // ==================== 配置管理 ====================
 
@@ -256,7 +259,7 @@ exports.createTask = async (req, res) => {
 
     // 异步执行ETL任务
     setImmediate(() => {
-      executeETLTask(taskId, time_start, time_end);
+      etlTaskService.executeETLTask(taskId, time_start, time_end);
     });
 
     res.json({
@@ -358,7 +361,7 @@ exports.getTaskLogs = async (req, res) => {
 // ==================== 实时进度监控（SSE） ====================
 
 // 存储活跃的SSE连接
-const sseConnections = new Map(); // taskId -> Set of response objects
+// const sseConnections = new Map(); // 改用 sseService
 
 /**
  * 实时获取任务进度（SSE）
@@ -386,10 +389,7 @@ exports.getTaskProgress = async (req, res) => {
     });
 
     // 注册连接
-    if (!sseConnections.has(id)) {
-      sseConnections.set(id, new Set());
-    }
-    sseConnections.get(id).add(res);
+    sseService.addConnection(id, res, req);
 
     // 发送初始状态
     const task = tasks[0];
@@ -405,17 +405,6 @@ exports.getTaskProgress = async (req, res) => {
       }
     })}\n\n`);
 
-    // 客户端断开连接时清理
-    req.on('close', () => {
-      const connections = sseConnections.get(id);
-      if (connections) {
-        connections.delete(res);
-        if (connections.size === 0) {
-          sseConnections.delete(id);
-        }
-      }
-    });
-
   } catch (error) {
     console.error('获取任务进度失败:', error);
     res.status(500).json({
@@ -427,21 +416,45 @@ exports.getTaskProgress = async (req, res) => {
 };
 
 /**
- * 向所有订阅者推送进度更新
+ * 获取任务日志
+ * GET /api/etl/tasks/:id/logs
  */
-function broadcastProgress(taskId, data) {
-  const connections = sseConnections.get(String(taskId));
-  if (connections) {
-    const message = `data: ${JSON.stringify(data)}\n\n`;
-    connections.forEach(res => {
-      try {
-        res.write(message);
-      } catch (error) {
-        console.error('推送进度失败:', error);
-      }
+exports.getTaskLogs = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { limit = 500 } = req.query;
+
+    // Check if task exists
+    const [tasks] = await db.query('SELECT * FROM etl_tasks WHERE id = ?', [id]);
+    if (tasks.length === 0) {
+      return res.status(404).json({
+        code: 404,
+        msg: 'Task not found'
+      });
+    }
+
+    // Get logs
+    const [logs] = await db.query(
+      'SELECT * FROM etl_logs WHERE task_id = ? ORDER BY created_at ASC LIMIT ?',
+      [id, parseInt(limit)]
+    );
+
+    res.json({
+      code: 200,
+      msg: 'Get logs success',
+      data: logs
+    });
+
+  } catch (error) {
+    console.error('Failed to get task logs:', error);
+    res.status(500).json({
+      code: 500,
+      msg: 'Failed to get task logs',
+      error: error.message
     });
   }
-}
+};
+
 
 // ==================== 定时任务管理 ====================
 
@@ -491,6 +504,15 @@ exports.createSchedule = async (req, res) => {
        VALUES (?, ?, ?, ?, ?)`,
       [schedule_name, task_type, cron_expression, configJson, is_enabled]
     );
+
+    // 重新加载调度器
+    try {
+      if (etlScheduler) {
+        await etlScheduler.reloadSchedule(result.insertId);
+      }
+    } catch (schedError) {
+      console.warn('定时任务注册可能失败:', schedError);
+    }
 
     res.json({
       code: 200,
@@ -563,6 +585,15 @@ exports.updateSchedule = async (req, res) => {
       });
     }
 
+    // 更新调度器
+    try {
+      if (etlScheduler) {
+        await etlScheduler.reloadSchedule(id);
+      }
+    } catch (schedError) {
+      console.warn('定时任务更新可能失败:', schedError);
+    }
+
     res.json({
       code: 200,
       msg: '更新定时任务成功'
@@ -594,6 +625,15 @@ exports.deleteSchedule = async (req, res) => {
       });
     }
 
+    // 从调度器移除
+    try {
+      if (etlScheduler) {
+        etlScheduler.unregisterSchedule(id);
+      }
+    } catch (schedError) {
+      console.warn('定时任务移除可能失败:', schedError);
+    }
+
     res.json({
       code: 200,
       msg: '删除定时任务成功'
@@ -606,164 +646,12 @@ exports.deleteSchedule = async (req, res) => {
       error: error.message
     });
   }
+
 };
 
 // ==================== ETL任务执行器 ====================
 
-/**
- * 执行ETL任务
- */
-async function executeETLTask(taskId, timeStart, timeEnd) {
-  try {
-    console.log(`[Task ${taskId}] 开始执行ETL任务`);
-
-    // 更新任务状态为running
-    await db.query(
-      "UPDATE etl_tasks SET status = 'running', started_at = NOW(), current_step = 'Initializing' WHERE id = ?",
-      [taskId]
-    );
-
-    // 记录日志
-    await insertLog(taskId, 'info', 'START', `ETL任务开始执行 (${timeStart} ~ ${timeEnd})`);
-
-    // 获取配置
-    const [configRows] = await db.query("SELECT * FROM etl_config WHERE config_key = 'python_path'");
-    const pythonPath = configRows.length > 0
-      ? JSON.parse(configRows[0].config_value).value
-      : 'python';
-
-    // Python脚本路径
-    const scriptPath = path.join(__dirname, '../etl_scripts/main.py');
-
-    // 启动Python进程
-    const pythonProcess = spawn(pythonPath, [scriptPath, timeStart, timeEnd, String(taskId)], {
-      cwd: path.join(__dirname, '../etl_scripts')
-    });
-
-    // 处理标准输出
-    pythonProcess.stdout.on('data', async (data) => {
-      const lines = data.toString().split('\n').filter(line => line.trim());
-
-      for (const line of lines) {
-        try {
-          const parsed = JSON.parse(line);
-
-          if (parsed.type === 'LOG') {
-            // 记录日志
-            await insertLog(taskId, parsed.level, parsed.step, parsed.message, parsed.data);
-
-            // 更新当前步骤
-            await db.query(
-              "UPDATE etl_tasks SET current_step = ? WHERE id = ?",
-              [parsed.step, taskId]
-            );
-          } else if (parsed.type === 'PROGRESS') {
-            // 更新进度
-            await db.query(
-              "UPDATE etl_tasks SET total_projects = ?, processed_projects = ? WHERE id = ?",
-              [parsed.total, parsed.current, taskId]
-            );
-
-            // 推送进度
-            broadcastProgress(taskId, {
-              type: 'progress',
-              ...parsed
-            });
-          } else if (parsed.type === 'RESULT') {
-            // 最终结果
-            if (parsed.success) {
-              await db.query(
-                `UPDATE etl_tasks SET
-                  status = 'success',
-                  finished_at = NOW(),
-                  total_projects = ?,
-                  total_records = ?
-                 WHERE id = ?`,
-                [parsed.data.projects_count, parsed.data.records_count, taskId]
-              );
-
-              await insertLog(taskId, 'info', 'SUCCESS', parsed.message, parsed.data);
-            } else {
-              await db.query(
-                "UPDATE etl_tasks SET status = 'failed', finished_at = NOW(), error_message = ? WHERE id = ?",
-                [parsed.error, taskId]
-              );
-
-              await insertLog(taskId, 'error', 'FAILED', parsed.message, { error: parsed.error });
-            }
-
-            // 推送最终状态
-            broadcastProgress(taskId, {
-              type: 'complete',
-              success: parsed.success,
-              message: parsed.message
-            });
-          }
-        } catch (error) {
-          // 非JSON输出，直接记录
-          console.log(`[Task ${taskId}] Output:`, line);
-        }
-      }
-    });
-
-    // 处理错误输出
-    pythonProcess.stderr.on('data', async (data) => {
-      const error = data.toString();
-      console.error(`[Task ${taskId}] Error:`, error);
-      await insertLog(taskId, 'error', 'STDERR', error);
-    });
-
-    // 处理进程退出
-    pythonProcess.on('close', async (code) => {
-      console.log(`[Task ${taskId}] Python进程退出，代码: ${code}`);
-
-      if (code !== 0) {
-        // 非正常退出
-        await db.query(
-          "UPDATE etl_tasks SET status = 'failed', finished_at = NOW(), error_message = ? WHERE id = ?",
-          [`进程异常退出，退出码: ${code}`, taskId]
-        );
-
-        await insertLog(taskId, 'error', 'FAILED', `进程异常退出，退出码: ${code}`);
-
-        broadcastProgress(taskId, {
-          type: 'error',
-          message: `进程异常退出，退出码: ${code}`
-        });
-      }
-    });
-
-  } catch (error) {
-    console.error(`[Task ${taskId}] 执行失败:`, error);
-
-    await db.query(
-      "UPDATE etl_tasks SET status = 'failed', finished_at = NOW(), error_message = ? WHERE id = ?",
-      [error.message, taskId]
-    );
-
-    await insertLog(taskId, 'error', 'FAILED', `任务执行失败: ${error.message}`);
-
-    broadcastProgress(taskId, {
-      type: 'error',
-      message: error.message
-    });
-  }
-}
-
-/**
- * 插入日志记录
- */
-async function insertLog(taskId, level, step, message, data = null) {
-  try {
-    await db.query(
-      'INSERT INTO etl_logs (task_id, log_level, log_step, log_message, log_data) VALUES (?, ?, ?, ?, ?)',
-      [taskId, level, step, message, data ? JSON.stringify(data) : null]
-    );
-  } catch (error) {
-    console.error('插入日志失败:', error);
-  }
-}
-
 // 导出工具函数供外部使用
-exports.executeETLTask = executeETLTask;
-exports.broadcastProgress = broadcastProgress;
+// 注意：实际执行逻辑已移动到 etlTaskService.js
+// exports.executeETLTask = executeETLTask; // 已移除
+// exports.broadcastProgress = broadcastProgress; // 已移除

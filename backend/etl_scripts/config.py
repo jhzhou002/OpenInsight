@@ -68,7 +68,7 @@ class ETLConfig:
             'host': os.getenv('DB_HOST', '49.235.74.98'),
             'user': os.getenv('DB_USER', 'remote'),
             'password': os.getenv('DB_PASSWORD', 'Zhjh0704.'),
-            'database': os.getenv('DB_NAME', 'test'),
+            'database': os.getenv('DB_NAME', 'opendigger'),
             'charset': 'utf8mb4'
         }
 

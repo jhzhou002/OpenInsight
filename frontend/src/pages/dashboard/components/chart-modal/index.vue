@@ -37,7 +37,6 @@ import useInitData from '@/store/initData';
 
 import { getProjectData } from '../../service';
 import { SelectProps, message } from 'ant-design-vue';
-import { dateList } from '../../config';
 
 const reviewEfficient = useReviewEfficient();
 const openRankChart = useOpenRank();

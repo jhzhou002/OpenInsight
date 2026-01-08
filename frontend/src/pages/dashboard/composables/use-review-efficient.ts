@@ -1,12 +1,13 @@
 import { ref, reactive, shallowRef } from 'vue';
 import echarts from '@/echarts';
 import { PieSeriesOption, EChartsOption } from 'echarts';
-import { EChartsCoreOption, EChartsType } from 'echarts/core';
+import { EChartsType, EChartsCoreOption } from 'echarts/core';
 import type { DateItem, LineChartType, MuSelectValueType } from '../data';
 
 import { getHtmlFontPX, handleChartResize } from '@/utils/base';
 import ThemeColor from '@/themeColor';
-import { colorList, dateList } from '../config';
+import { colorList, dateList as defaultDateList } from '../config';
+import useOptionStore from '@/store/option';
 
 export default function (props?: {
 	showHandler?: (visible: boolean, type: number, selectValue: MuSelectValueType) => void;
@@ -14,6 +15,8 @@ export default function (props?: {
 }): LineChartType {
 	const chartRef = shallowRef<EChartsType>();
 	const container = ref<HTMLDivElement | undefined>();
+	const optionStore = useOptionStore();
+
 	const chart = reactive<LineChartType['chart']>({
 		selectValue: [38, 41, 68],
 		initChart,
@@ -142,6 +145,9 @@ export default function (props?: {
 	function initChart(nodes: PieSeriesOption['data']): any {
 		if (!container.value) return;
 		const preiData: EChartsCoreOption[] = [];
+		// Use dateList from optionStore if available, otherwise fall back to default
+		const dateList = optionStore.dateList.length > 0 ? optionStore.dateList : defaultDateList;
+
 		nodes &&
 			nodes.forEach((item: any) => {
 				// 只显示selectValue中指定的项目ID

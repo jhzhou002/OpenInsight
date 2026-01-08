@@ -104,6 +104,7 @@
 <script setup lang="ts">
 import { nextTick, onBeforeUnmount, onMounted, reactive, ref } from 'vue';
 import { debounce } from 'lodash';
+import axios from 'axios';
 
 import indexImg from '@/assets/images/index-bg.png';
 import centerImg from '@/assets/images/center.png';
@@ -130,7 +131,7 @@ import useRadar from './composables/use-radar';
 import useOptionStore from '@/store/option';
 import useInitData from '@/store/initData';
 
-import { titleList, leftRightCol, centerCol } from './config';
+import { titleList, leftRightCol, centerCol, generateDateList } from './config';
 
 import { getInit, getOptions } from './service';
 
@@ -255,6 +256,28 @@ const getOptionsData = async () => {
 	}
 };
 
+// 从ETL配置获取时间范围并更新全局dateList
+const updateTimeRange = async () => {
+	try {
+		const response = await axios.get('/api/etl/config');
+		if (response.data.code === 200) {
+			const timeRangeConfig = response.data.data.find((item: any) => item.config_key === 'time_range');
+			if (timeRangeConfig && timeRangeConfig.config_value) {
+				const { start, end } = timeRangeConfig.config_value;
+				if (start && end) {
+					// 动态更新dateList
+					const newDateList = generateDateList(start, end);
+					// 更新到 optionStore 或其他全局状态中
+					optionStore.dateList = newDateList;
+					console.log('Updated dateList from ETL config:', start, 'to', end);
+				}
+			}
+		}
+	} catch (error) {
+		console.error('Failed to fetch time range from ETL config:', error);
+	}
+};
+
 const initData = reactive({
 	openRank: 0,
 	gitHub: 0
@@ -280,8 +303,11 @@ const getInitData = async () => {
 	initLoading.value = false;
 };
 
-onMounted(() => {
+onMounted(async () => {
 	loadImg();
+	// 先更新时间范围配置
+	await updateTimeRange();
+	// 然后加载其他数据
 	getOptionsData();
 	getInitData();
 	github.addData();
