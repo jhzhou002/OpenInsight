@@ -121,8 +121,8 @@ onMounted(() => {
 	username.value = localStorage.getItem('admin_username') || 'Admin';
 });
 
-const handleMenuSelect = ({ key }: { key: string }) => {
-	currentView.value = key;
+const handleMenuSelect = ({ key }: { key: string | number }) => {
+	currentView.value = String(key);
 };
 
 const handleLogout = () => {

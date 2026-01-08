@@ -43,16 +43,15 @@
 </template>
 
 <script setup lang="ts">
-import { ref, h, computed } from 'vue';
+import { ref, h } from 'vue';
 import { useRouter } from 'vue-router';
 import { message } from 'ant-design-vue';
-import { UserOutlined, LockOutlined, RocketOutlined } from '@ant-design/icons-vue';
+import { UserOutlined, LockOutlined } from '@ant-design/icons-vue';
 
 import service from '@/service/service';
 
 const router = useRouter();
 const loading = ref(false);
-const hasLogo = ref(true);
 
 const loginForm = ref({
 	username: '',

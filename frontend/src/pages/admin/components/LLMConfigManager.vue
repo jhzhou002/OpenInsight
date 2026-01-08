@@ -290,7 +290,10 @@ const loadConfigs = async () => {
 	}
 };
 
-const handleProviderChange = (provider: string) => {
+const handleProviderChange = (value: any) => {
+	// Extract the actual value from SelectValue (can be string, number, LabeledValue, etc.)
+	const provider = typeof value === 'object' && value !== null && 'value' in value ? value.value : value;
+	if (!provider || typeof provider !== 'string') return;
 	const template = providerTemplates[provider];
 	if (template) {
 		configForm.value.base_url = template.base_url;

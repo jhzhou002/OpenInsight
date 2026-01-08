@@ -27,7 +27,7 @@
 import { computed, watch, nextTick, PropType, ref } from 'vue';
 import { debounce } from 'lodash';
 
-import { DateItem, MuSelectValueType, chartDataObjType } from '../../data';
+import { MuSelectValueType, chartDataObjType } from '../../data';
 
 import useReviewEfficient from '../../composables/use-review-efficient';
 import useOpenRank from '../../composables/use-open-rank';
@@ -35,7 +35,6 @@ import useOpenRank from '../../composables/use-open-rank';
 import useOptionStore from '@/store/option';
 import useInitData from '@/store/initData';
 
-import { getProjectData } from '../../service';
 import { SelectProps, message } from 'ant-design-vue';
 
 const reviewEfficient = useReviewEfficient();

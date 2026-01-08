@@ -318,14 +318,15 @@ const deleteSchedule = async (id: number) => {
 	}
 };
 
-const toggleSchedule = async (id: number, enabled: boolean) => {
+const toggleSchedule = async (id: number, enabled: boolean | string | number) => {
 	try {
+		const isEnabled = Boolean(enabled);
 		const response = await axios.put(`/api/etl/schedules/${id}`, {
-			is_enabled: enabled ? 1 : 0
+			is_enabled: isEnabled ? 1 : 0
 		});
 
 		if (response.data.code === 200) {
-			message.success(enabled ? '定时任务已启用' : '定时任务已禁用');
+			message.success(isEnabled ? '定时任务已启用' : '定时任务已禁用');
 			loadSchedules();
 		} else {
 			message.error(response.data.msg || '操作失败');
@@ -338,7 +339,7 @@ const toggleSchedule = async (id: number, enabled: boolean) => {
 
 const triggerSchedule = async (id: number) => {
 	try {
-		const schedule = schedules.value.find((s: any) => s.id === id);
+		const schedule: any = schedules.value.find((s: any) => s.id === id);
 		if (!schedule) return;
 
 		// 解析task_config
@@ -388,11 +389,7 @@ const getNextRunTime = (cronExpression: string) => {
 	}
 };
 
-const handleQuickCronSelect = (value: string) => {
-	if (value) {
-		scheduleForm.cron_expression = value;
-	}
-};
+// Removed unused function handleQuickCronSelect
 
 // 处理预设选择变化
 const handleCronPresetChange = () => {
