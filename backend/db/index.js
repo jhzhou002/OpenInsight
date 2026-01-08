@@ -1,9 +1,9 @@
 const mysql = require('mysql')
 
 const db = mysql.createPool({
-    host: '49.235.74.98',
-    user: 'remote',
-    password: 'Zhjh0704.',
+    host: 'localhost',
+    user: 'root',
+    password: 'root',
     database: 'opendigger',
     connectionLimit: 10,
     waitForConnections: true,
