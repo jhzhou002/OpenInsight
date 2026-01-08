@@ -26,7 +26,7 @@
 				<template v-if="column.key === 'is_enabled'">
 					<a-switch
 						:checked="record.is_enabled === 1"
-						@change="checked => toggleSchedule(record.id, checked)"
+						@change="(checked: boolean | string | number) => toggleSchedule(record.id, checked)"
 					/>
 				</template>
 
