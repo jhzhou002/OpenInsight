@@ -4,8 +4,8 @@
 			<!-- 侧边栏 -->
 			<a-layout-sider v-model:collapsed="collapsed" :trigger="null" collapsible class="admin-sider">
 				<div class="logo">
-					<h2 v-if="!collapsed">ETL管理</h2>
-					<h2 v-else>ETL</h2>
+					<img src="/logo.png" alt="logo" class="logo-img" />
+					<h2 v-if="!collapsed">OpenInsight</h2>
 				</div>
 
 				<a-menu
@@ -57,6 +57,7 @@
 					</div>
 				</a-layout-header>
 
+				<!-- 内容区 -->
 				<!-- 内容区 -->
 				<a-layout-content class="admin-content">
 					<div class="content-wrapper">
@@ -134,29 +135,58 @@ const handleLogout = () => {
 
 <style scoped lang="scss">
 .admin-dashboard {
-	min-height: 100vh;
+	height: 100vh;
 	background: #f0f2f5;
+    overflow: hidden;
 
 	.admin-layout {
-		min-height: 100vh;
+		height: 100vh;
+        overflow: hidden;
 	}
 
 	.admin-sider {
 		background: #001529;
+        overflow-y: auto;
 
 		.logo {
 			height: 64px;
 			display: flex;
 			align-items: center;
-			justify-content: center;
-			background: rgba(255, 255, 255, 0.1);
+			padding-left: 24px;
+			background: #002140;
+			overflow: hidden;
+			transition: all 0.3s;
+
+			.logo-img {
+				width: 32px;
+				height: 32px;
+				margin-right: 12px;
+				transition: all 0.3s;
+			}
 
 			h2 {
 				color: white;
 				margin: 0;
-				font-size: 20px;
+				font-size: 18px;
 				font-weight: 600;
+				white-space: nowrap;
+				opacity: 1;
+				transition: all 0.3s;
 			}
+		}
+
+		&.ant-layout-sider-collapsed .logo {
+			padding-left: 24px;
+			justify-content: flex-start;
+
+			h2 {
+				opacity: 0;
+				width: 0;
+			}
+
+            .logo-img {
+                margin-right: 0;
+            }
 		}
 	}
 
@@ -191,15 +221,19 @@ const handleLogout = () => {
 	}
 
 	.admin-content {
-		margin: 24px;
 		padding: 24px;
-		background: white;
-		border-radius: 8px;
-		min-height: calc(100vh - 112px);
+        margin: 0;
+		background: transparent;
+        overflow-y: auto;
+		height: calc(100vh - 64px);
 
 		.content-wrapper {
 			max-width: 1400px;
 			margin: 0 auto;
+            background: white;
+            padding: 24px;
+            border-radius: 8px;
+            min-height: 100%;
 		}
 	}
 }
