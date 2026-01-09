@@ -8,7 +8,7 @@
   [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue.svg)](https://www.typescriptlang.org/)
   [![Node](https://img.shields.io/badge/Node-18.x-green.svg)](https://nodejs.org/)
 
-  [在线体验](https://openinsight.aihubzone.cn) | [指标说明](https://openinsight.aihubzone.cn/#/metrics-guide) | [GitHub仓库](https://github.com/jhzhou002/OpenInsight)
+  [在线体验](https://openinsight.aihubzone.cn) | [指标说明](https://openinsight.aihubzone.cn/metrics-guide) | [GitHub仓库](https://github.com/jhzhou002/OpenInsight) | [视频演示](https://github.com/jhzhou002/OpenInsight) | [使用文档](使用文档.md)
 </div>
 
 ---
@@ -30,10 +30,6 @@
 ---
 
 ## 📸 功能展示与使用指南
-
-[使用文档]: 使用文档.md
-
-
 
 ### 1. 项目搜索与导入
 
@@ -89,7 +85,7 @@ npm install
 # 修改 db/index.js 中的 MySQL配置 (host, user, password, database)
 
 # 初始化数据库
-# 请将 backend/sql/ 下的 SQL 文件导入您的 MySQL 数据库
+# 请将 backend/database/ 下的 SQL 文件导入您的 MySQL 数据库
 
 # 启动服务
 npm start
@@ -143,4 +139,3 @@ npm run dev
 <div align="center">
   Made with by OpenInsight Team
 </div>
-
