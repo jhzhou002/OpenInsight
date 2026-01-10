@@ -8,7 +8,7 @@
   [![TypeScript](https://img.shields.io/badge/TypeScript-5.x-blue.svg)](https://www.typescriptlang.org/)
   [![Node](https://img.shields.io/badge/Node-18.x-green.svg)](https://nodejs.org/)
 
-  [在线体验](https://openinsight.aihubzone.cn) | [指标说明](https://openinsight.aihubzone.cn/metrics-guide) | [GitHub仓库](https://github.com/jhzhou002/OpenInsight) | [视频演示](https://github.com/jhzhou002/OpenInsight) | [使用文档](使用文档.md)
+  [视频演示](https://www.bilibili.com/video/BV1QQ6mBWEyn/) | [在线体验](https://openinsight.aihubzone.cn) | [指标说明](https://openinsight.aihubzone.cn/metrics-guide) | [使用文档](使用文档.md)
 </div>
 
 ---

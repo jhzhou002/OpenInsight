@@ -65,9 +65,9 @@ class ETLConfig:
 
         # 数据库配置（从环境变量读取）
         self.db_config = {
-            'host': os.getenv('DB_HOST', '49.235.74.98'),
-            'user': os.getenv('DB_USER', 'remote'),
-            'password': os.getenv('DB_PASSWORD', 'Zhjh0704.'),
+            'host': os.getenv('DB_HOST', 'localhost'),
+            'user': os.getenv('DB_USER', 'root'),
+            'password': os.getenv('DB_PASSWORD', 'root'),
             'database': os.getenv('DB_NAME', 'opendigger'),
             'charset': 'utf8mb4'
         }

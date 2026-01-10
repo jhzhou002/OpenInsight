@@ -32,9 +32,9 @@ pip install -r requirements.txt
 
 ```python
 self.db_config = {
-    'host': '49.235.74.98',
-    'user': 'remote',
-    'password': 'Zhjh0704.',
+    'host': 'localhost',
+    'user': 'root',
+    'password': 'root',
     'database': 'opendigger',
     'charset': 'utf8mb4'
 }
