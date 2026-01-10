@@ -2,10 +2,10 @@
   <img src="docs/openinsight_logo.png" width="120" alt="OpenInsight Logo" />
   <h1>OpenInsight</h1>
   <p><strong>基于 X-lab OpenDigger 的开源项目趋势分析平台</strong></p>
-  [![License](https://img.shields.io/badge/license-MIT-blue.svg)](LICENSE)
-  [![Vue](https://img.shields.io/badge/Vue-3-green.svg)](https://vuejs.org/)
-  [![TypeScript](https://img.shields.io/badge/TypeScript-5-blue.svg)](https://www.typescriptlang.org/)
-  [![Node](https://img.shields.io/badge/Node-18-green.svg)](https://nodejs.org/)
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-blue.svg" alt="License"></a>
+  <a href="https://vuejs.org/"><img src="https://img.shields.io/badge/Vue-3-green.svg" alt="Vue"></a>
+  <a href="https://www.typescriptlang.org/"><img src="https://img.shields.io/badge/TypeScript-5-blue.svg" alt="TypeScript"></a>
+  <a href="https://nodejs.org/"><img src="https://img.shields.io/badge/Node-18-green.svg" alt="Node"></a>
 
   [视频演示](https://www.bilibili.com/video/BV1QQ6mBWEyn/) | [在线体验](https://openinsight.aihubzone.cn) | [指标说明](https://openinsight.aihubzone.cn/metrics-guide) | [使用文档](使用文档.md)
 </div>
