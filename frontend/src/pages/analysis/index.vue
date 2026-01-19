@@ -85,6 +85,7 @@
 			<!-- 第三步: AI分析结果 -->
 			<a-card
 				v-if="analysisResult || analyzing"
+				ref="resultCardRef"
 				class="result-card"
 				title="3️⃣ AI分析报告"
 				:bordered="false"
@@ -186,6 +187,7 @@ const analyzingStep = ref(0);
 const analysisResult = ref('');
 const analysisTime = ref('');
 const exporting = ref(false);
+const resultCardRef = ref<HTMLElement | null>(null);
 
 // 计算是否可以开始分析
 const canStartAnalysis = computed(() => {
@@ -225,6 +227,15 @@ const startAnalysis = async () => {
 	analyzing.value = true;
 	analyzingStep.value = 0;
 	analysisResult.value = '';
+
+	// 等待 DOM 更新后滚动到结果卡片
+	await new Promise(resolve => setTimeout(resolve, 100));
+	if (resultCardRef.value) {
+		resultCardRef.value.$el.scrollIntoView({
+			behavior: 'smooth',
+			block: 'start'
+		});
+	}
 
 	try {
 		// 步骤1: 获取分析数据
