@@ -187,7 +187,7 @@ const analyzingStep = ref(0);
 const analysisResult = ref('');
 const analysisTime = ref('');
 const exporting = ref(false);
-const resultCardRef = ref<HTMLElement | null>(null);
+const resultCardRef = ref<any>(null);
 
 // 计算是否可以开始分析
 const canStartAnalysis = computed(() => {
