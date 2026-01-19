@@ -17,7 +17,7 @@
 					</router-link>
 					<span class="nav-divider">|</span>
 					<router-link to="/dashboard" class="nav-link" active-class="active">
-						可视化大屏
+						洞察大屏
 					</router-link>
 					<span class="nav-divider">|</span>
 					<router-link to="/analysis" class="nav-link" active-class="active">

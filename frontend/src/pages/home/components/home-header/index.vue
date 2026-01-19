@@ -1,6 +1,6 @@
 <template>
 	<div class="home-header">
-		<div class="home-header-title">开源数据发展趋势仪表盘</div>
+		<div class="home-header-title">OpenInsight 开源生态全景</div>
 		<div class="home-header-time">
 			<span class="date-value">{{ date }}</span>
 			<span class="time-value">{{ time }}</span>

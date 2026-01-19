@@ -11,13 +11,13 @@ const routes = [
 		path: '/',
 		redirect: '/search'
 	},
-	// 可视化大屏 - 独立页面，不使用导航栏
+	// 洞察大屏 - 独立页面，不使用导航栏
 	{
 		path: '/dashboard',
 		name: 'Dashboard',
 		component: Dashboard,
 		meta: {
-			title: 'OpenInsight - 可视化大屏'
+			title: 'OpenInsight - 洞察大屏'
 		}
 	},
 	// 其他页面使用 MainLayout

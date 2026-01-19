@@ -55,7 +55,7 @@
 					<li>输入 GitHub 项目的 <strong>Owner</strong> (如: vuejs) 和 <strong>Repo</strong> (如: core)。</li>
 					<li>点击 <strong>检查项目</strong> 查看 OpenInsight 是否已有数据。</li>
 					<li>若数据库中未存在且 OpenDigger 有数据，点击 <strong>执行ETL</strong> 导入。</li>
-					<li>导入成功后，前往 <router-link to="/dashboard">可视化大屏</router-link> 查看详细信息。</li>
+					<li>导入成功后，前往 <router-link to="/dashboard">洞察大屏</router-link> 查看详细信息。</li>
 				</ol>
 			</div>
 		</div>

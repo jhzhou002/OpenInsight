@@ -2,6 +2,7 @@
 	<div class="floating-menu">
 		<!-- 菜单按钮 -->
 		<div class="menu-button" @click="toggleMenu" :class="{ active: isMenuOpen }">
+			<span class="menu-label">导航栏</span>
 			<div class="menu-icon">
 				<span></span>
 				<span></span>
@@ -31,7 +32,7 @@
 							/>
 						</svg>
 					</span>
-					<span class="menu-text">可视化大屏</span>
+					<span class="menu-text">洞察大屏</span>
 				</router-link>
 
 				<router-link to="/analysis" class="menu-item" @click="closeMenu">
@@ -71,15 +72,16 @@ const closeMenu = () => {
 <style lang="scss" scoped>
 .floating-menu {
 	position: fixed;
-	top: 20px;
+	top: 30px;
 	right: 20px;
 	z-index: 9999;
 }
 
 // 菜单按钮
 .menu-button {
-	width: 36px;
-	height: 36px;
+	height: 28px;
+	padding: 0 8px;
+	gap: 8px;
 	background: linear-gradient(135deg, rgba(15, 23, 42, 0.9) 0%, rgba(30, 41, 59, 0.9) 100%);
 	backdrop-filter: blur(10px);
 	border: 1px solid rgba(56, 189, 248, 0.3);
@@ -115,10 +117,18 @@ const closeMenu = () => {
 	}
 }
 
+// 菜单文本
+.menu-label {
+	color: #38bdf8;
+	font-size: 12px;
+	font-weight: 600;
+	letter-spacing: 1px;
+}
+
 // 汉堡图标
 .menu-icon {
-	width: 18px;
-	height: 12px;
+	width: 14px;
+	height: 10px;
 	position: relative;
 	display: flex;
 	flex-direction: column;
